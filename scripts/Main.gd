@@ -1,127 +1,87 @@
 extends Control
 
-var title_label: Label
-var subtitle_label: Label
-var content_title: Label
-var content_label: Label
-var status_label: Label
-var content_box: VBoxContainer
-
-const DESTINATIONS = [
-    ["المأوى", "المنزل المؤقت ومصدر الدفء"],
-    ["الخرابة", "استكشاف الأماكن المهجورة والعثور على الموارد"],
-    ["المخزن", "إدارة الأدوات والمواد التي جمعتها"],
-    ["الورشة", "إصلاح الأثاث والأبواب ومصادر التدفئة"],
-    ["الخريطة", "معرفة المناطق التي تم اكتشافها"],
-    ["المهام", "مهام يومية وقرارات تؤثر في النجاة"],
-    ["الحقيبة", "الأدوات والمواد المتاحة"],
-    ["الحالة", "الدفء والطاقة والوقت"],
+var scene_index := -1
+var scene_images := [
+    "res://art/cover.svg",
+    "res://art/rain.svg",
+    "res://art/snow.svg",
+    "res://art/walk.svg",
+    "res://art/shelter.svg"
 ]
 
-var pages := {
-    "المأوى": "هذا هو مركز اللعبة. راقب مستوى الدفء، أصلح المكان، وحافظ على الموارد.",
-    "الخرابة": "هنا تبدأ عمليات الاستكشاف. ابحث عن الخشب، المعدن، الأدوات، والطعام.",
-    "المخزن": "كل ما تجمعه يظهر هنا. استخدم الموارد بحكمة لأن الشتاء لا ينتظر.",
-    "الورشة": "حوّل المواد الخام إلى إصلاحات حقيقية تساعد على بقاء المأوى آمنًا ودافئًا.",
-    "الخريطة": "ستظهر المناطق المكتشفة هنا تدريجيًا مع تقدمك في اللعبة.",
-    "المهام": "اختر المهمة بعد معرفة المخاطر والمكافأة. قراراتك تغيّر مسار اليوم.",
-    "الحقيبة": "الأدوات الأساسية التي تحملها أثناء الاستكشاف.",
-    "الحالة": "الدفء: 72%    الطاقة: 86%    الوقت المتبقي: 18:42",
-}
+var image_view: TextureRect
+var caption: Label
+var next_button: Button
 
 func _ready() -> void:
-    _build_ui()
-    _show_page("المأوى")
+    _build_opening()
+    _show_scene(-1)
 
-func _make_label(text_value: String, size: int) -> Label:
-    var label := Label.new()
-    label.text = text_value
-    label.add_theme_font_size_override("font_size", size)
-    label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    label.text_direction = Control.TEXT_DIRECTION_RTL
-    return label
-
-func _make_button(text_value: String) -> Button:
-    var button := Button.new()
-    button.text = text_value
-    button.custom_minimum_size = Vector2(0, 70)
-    button.add_theme_font_size_override("font_size", 22)
-    button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    button.pressed.connect(func(): _show_page(text_value))
-    return button
-
-func _build_ui() -> void:
+func _build_opening() -> void:
     var background := ColorRect.new()
-    background.color = Color("#101722")
+    background.color = Color("#080d14")
     background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     add_child(background)
 
-    var margin := MarginContainer.new()
-    margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    margin.add_theme_constant_override("margin_left", 28)
-    margin.add_theme_constant_override("margin_right", 28)
-    margin.add_theme_constant_override("margin_top", 28)
-    margin.add_theme_constant_override("margin_bottom", 28)
-    add_child(margin)
+    image_view = TextureRect.new()
+    image_view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    image_view.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    image_view.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+    add_child(image_view)
 
-    var root := VBoxContainer.new()
-    root.add_theme_constant_override("separation", 18)
-    margin.add_child(root)
+    var shade := ColorRect.new()
+    shade.color = Color(0, 0, 0, 0.18)
+    shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    add_child(shade)
 
-    title_label = _make_label("دفء", 42)
-    title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    root.add_child(title_label)
+    caption = Label.new()
+    caption.position = Vector2(35, 70)
+    caption.size = Vector2(650, 170)
+    caption.add_theme_font_size_override("font_size", 30)
+    caption.add_theme_color_override("font_color", Color("#f2f6f8"))
+    caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    caption.text_direction = Control.TEXT_DIRECTION_RTL
+    add_child(caption)
 
-    subtitle_label = _make_label("البقاء يبدأ من قرار واحد", 19)
-    subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    root.add_child(subtitle_label)
+    next_button = Button.new()
+    next_button.text = "ابدأ"
+    next_button.position = Vector2(190, 1080)
+    next_button.size = Vector2(340, 90)
+    next_button.add_theme_font_size_override("font_size", 28)
+    next_button.pressed.connect(_next_scene)
+    add_child(next_button)
 
-    var status_panel := PanelContainer.new()
-    status_panel.custom_minimum_size = Vector2(0, 82)
-    root.add_child(status_panel)
+func _show_scene(index: int) -> void:
+    scene_index = index
+    image_view.texture = load(scene_images[index + 1])
+    if index == -1:
+        caption.text = "دفء\nحين يشتد البرد... يبدأ البحث عن الأمان"
+        next_button.text = "ابدأ القصة"
+    elif index == 0:
+        caption.text = "المطر لا يتوقف...\nامرأة تجلس وحيدة في شارع بارد."
+        next_button.text = "تابع"
+    elif index == 1:
+        caption.text = "ثم تغيّر كل شيء.\nبدأ الثلج يتساقط، وانخفضت الحرارة."
+        next_button.text = "تابع"
+    elif index == 2:
+        caption.text = "لم يعد الانتظار خيارًا.\nنهضت وبدأت تبحث عن مكان يحميها."
+        next_button.text = "تابع"
+    elif index == 3:
+        caption.text = "بعد مسير طويل...\nظهر أمامها مأوى مهجور."
+        next_button.text = "ادخل المأوى"
+    else:
+        caption.text = "وجدت مكانًا مؤقتًا.\nلكن البقاء هنا لن يكون سهلًا..."
+        next_button.text = "ابدأ اللعب"
 
-    status_label = _make_label("🔥 الدفء 72%     ⚡ الطاقة 86%     ⏱ 18:42", 20)
-    status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    status_panel.add_child(status_label)
+func _next_scene() -> void:
+    if scene_index < scene_images.size() - 1:
+        _show_scene(scene_index + 1)
+    else:
+        _start_game()
 
-    var main_scroll := ScrollContainer.new()
-    main_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-    root.add_child(main_scroll)
-
-    var columns := HBoxContainer.new()
-    columns.add_theme_constant_override("separation", 18)
-    columns.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    main_scroll.add_child(columns)
-
-    var nav_panel := VBoxContainer.new()
-    nav_panel.custom_minimum_size = Vector2(260, 0)
-    nav_panel.add_theme_constant_override("separation", 10)
-    columns.add_child(nav_panel)
-
-    var nav_title := _make_label("الأماكن", 24)
-    nav_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    nav_panel.add_child(nav_title)
-
-    for item in DESTINATIONS:
-        nav_panel.add_child(_make_button(item[0]))
-
-    content_box = VBoxContainer.new()
-    content_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    content_box.add_theme_constant_override("separation", 14)
-    columns.add_child(content_box)
-
-    content_title = _make_label("", 30)
-    content_box.add_child(content_title)
-
-    content_label = _make_label("", 21)
-    content_label.custom_minimum_size = Vector2(0, 180)
-    content_box.add_child(content_label)
-
-    var tip := _make_label("نصيحة: لا تهدر الموارد. كل قطعة خشب أو أداة قد تكون مهمة لاحقًا.", 18)
-    content_box.add_child(tip)
-
-func _show_page(page_name: String) -> void:
-    content_title.text = page_name
-    content_label.text = pages.get(page_name, "هذه المنطقة قيد التطوير.")
-    status_label.text = "🔥 الدفء 72%     ⚡ الطاقة 86%     ⏱ 18:42"
+func _start_game() -> void:
+    caption.text = "بداية اللعبة"
+    next_button.text = "قريبًا: أول مرحلة لعب"
+    next_button.disabled = true
