@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07111f">
+<title>دفء — ملجأ الشتاء</title>
+<style>
+:root{--bg:#07111f;--panel:#101d2e;--panel2:#16263a;--line:#294057;--text:#edf5ff;--muted:#9db0c5;--good:#31d17c;--warn:#f5b83d;--bad:#ef5b64;--ice:#55c7f5}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:radial-gradient(circle at 50% -10%,#19344e,#07111f 48%);color:var(--text);font-family:Tahoma,system-ui,sans-serif;min-height:100vh}button{font:inherit}
+#app{width:min(500px,100%);margin:auto;padding:10px 10px 20px}header,.panel{background:rgba(16,29,46,.94);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 30px #0005}header{padding:11px 13px;display:flex;align-items:center;justify-content:space-between}h1{font-size:18px;margin:0}.chapter{font-size:11px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.stat{padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;text-align:center;font-size:11px}.stat strong{display:block;font-size:13px;margin-bottom:5px}.bar{height:7px;background:#07111f;border-radius:99px;overflow:hidden}.fill{height:100%;transition:width .45s}
+#scene{height:350px;position:relative;overflow:hidden;border:1px solid #36506a;border-radius:18px;background:linear-gradient(#152a40 0 45%,#0d1722 45%);box-shadow:inset 0 0 60px #0008}
+#scene:before{content:"";position:absolute;left:7%;right:7%;bottom:17%;height:48%;border:3px solid #405264;border-bottom-width:7px;background:linear-gradient(135deg,#263544,#172330);clip-path:polygon(4% 18%,50% 0,96% 18%,96% 100%,4% 100%);opacity:.95}
+.part{position:absolute;z-index:2;font-size:12px;background:#07111dcc;padding:5px 7px;border:1px solid #53677b;border-radius:8px;transition:.4s}.roof{top:20%;left:50%;transform:translateX(-50%)}.window{top:50%;right:13%}.wall{top:63%;left:11%}.chimney{top:28%;left:23%}.fixed{opacity:.25;filter:grayscale(1)}
+#woman{position:absolute;z-index:3;left:50%;top:53%;transform:translate(-50%,-50%);font-size:72px;filter:drop-shadow(0 10px 15px #000);transition:.5s}
+#weather{position:absolute;inset:8px 10px auto;z-index:4;display:flex;justify-content:space-between;font-size:11px;color:#d7e7f5}#dialog{position:absolute;z-index:5;left:0;right:0;bottom:0;padding:42px 13px 12px;background:linear-gradient(transparent,#030913f5 52%);font-size:13px;line-height:1.65}
+.snow{position:absolute;z-index:4;top:-20px;color:#fff;opacity:.7;animation:fall linear forwards;pointer-events:none}@keyframes fall{to{transform:translateY(390px) translateX(25px)}}
+.panel{padding:9px;margin-top:8px}.title{font-size:11px;color:var(--muted);margin-bottom:6px}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{font-size:11px;padding:5px 8px;border-radius:20px;background:#07111f;border:1px solid var(--line)}
+#choices{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:13px;padding:11px 8px;font-size:12px;min-height:58px}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.4}.btn small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.primary{border-color:#3b6f91}
+#log{font-size:11px;line-height:1.55;color:#c7d5e4;max-height:90px;overflow:auto}#end{position:fixed;inset:0;background:#02070def;display:none;z-index:20;align-items:center;justify-content:center;padding:20px}.endbox{width:min(430px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center}.endbox h2{margin:0 0 8px}
+</style>
+</head>
+<body>
+<div id="app">
+<header><h1>🏚️ دفء</h1><span class="chapter" id="chapter">الفصل 1 · الوصول</span></header>
+<div class="stats">
+<div class="stat">❤️ <strong><span id="hp">65</span>%</strong><div class="bar"><div id="hpf" class="fill" style="background:var(--bad)"></div></div></div>
+<div class="stat">⏳ <strong><span id="time">120</span>ث</strong><div class="bar"><div id="tmf" class="fill" style="background:var(--warn)"></div></div></div>
+<div class="stat">🥶 <strong id="cold">قارس</strong><div class="bar"><div id="clf" class="fill" style="background:var(--ice)"></div></div></div>
+</div>
+<div id="scene">
+<div id="weather"><span>-12°C</span><span>🌬️ رياح قوية</span></div>
+<div id="roof" class="part roof">🕳️ السقف مخلوع</div><div id="window" class="part window">🪟 الشباك مفتوح</div><div id="wall" class="part wall">🧱 الحائط مكسور</div><div id="chimney" class="part chimney">💨 المدخنة مسدودة</div>
+<div id="woman">🥶</div><div id="dialog">البرد قارس. وجدتِ خرابة قديمة، لكن قبل أن تفعلي أي شيء عليكِ معرفة ما يمكن إنقاذه.</div>
+</div>
+<div class="panel"><div class="title">🎒 الحقيبة</div><div class="chips" id="inventory"></div></div>
+<div class="panel"><div class="title">🧰 التصنيع</div><div id="crafting" class="chips"></div></div>
+<div id="choices"></div>
+<div class="panel"><div id="log">📜 وصلتِ إلى الخرابة. افحصي المكان وابني خطة قبل إهدار الوقت.</div></div>
+</div>
+<div id="end"><div class="endbox"><h2 id="endTitle"></h2><p id="endText"></p><button class="btn primary" onclick="newGame()">🔄 بداية جديدة</button></div></div>
+<script>
+const KEY="daf2_v2";
+const BASE={hp:65,time:120,cold:80,chapter:1,inv:{خشب:1,فحم:1,"زجاج مكسور":1,طوب:0,طين:1,مسمار:2,ورق:1,قماش:0},done:{chimney:false,roof:false,window:false,wall:false},searched:0,log:[]};
+const recipes={"لوح خشب":{need:{خشب:1,مسمار:1},give:{"لوح خشب":1}},"زجاج صالح":{need:{"زجاج مكسور":1,طين:1},give:{زجاج:1}}};
+let state=load();let ended=false;
+function $(id){return document.getElementById(id)}
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x?x:clone(BASE)}catch(e){return clone(BASE)}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function add(item,n){state.inv[item]=(state.inv[item]||0)+(n||1)}
+function spend(item,n){n=n||1;if((state.inv[item]||0)<n)return false;state.inv[item]-=n;return true}
+function change(hp,time,cold){state.hp=Math.max(0,Math.min(100,state.hp+(hp||0)));state.time=Math.max(0,state.time+(time||0));state.cold=Math.max(0,Math.min(100,state.cold+(cold||0)))}
+function log(t){state.log.unshift(t);state.log=state.log.slice(0,6);$("log").innerHTML="📜 "+state.log.join("<br>📜 ")}
+function say(t){$("dialog").textContent=t;log(t);try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="ar";u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
+function evaluate(q,msg){
+if(q>=100){change(20,18,-35);say(msg+" — تقييم 100%: ممتاز! الصحة والوقت تحسنا.");}
+else if(q>=70){change(8,6,-18);say(msg+" — تقييم "+q+"%: جيد.");}
+else if(q>=50){say(msg+" — تقييم "+q+"%: مقبول، الوضع تقريبًا كما هو.");}
+else{change(-10,-5,8);say(msg+" — تقييم "+q+"%: سيئ، حالتها تتدهور أسرع.");}
+}
+function repair(type){
+if(ended)return;if(state.done[type]){say("هذا الجزء تم إصلاحه بالفعل.");return}
+let q=0,msg="";
+if(type==="chimney"){
+if(spend("فحم نظيف")&&spend("لوح خشب")){q=100;msg="نظفتِ المدخنة وثبّتِ الجزء المتضرر وجهزتِ التدفئة."}
+else if((state.inv.فحم||0)>0&&(state.inv.خشب||0)>0){spend("فحم");spend("خشب");q=80;msg="أصلحتِ المدخنة بمواد بسيطة، لكن التدفئة ليست مثالية."}
+else if(spend("فحم")){q=70;msg="أشعلتِ نارًا مؤقتة، لكنها لا تستمر طويلًا."}
+else{q=30;msg="حاولتِ تشغيل المدفأة دون مواد مناسبة."}
+if(q>=70)state.done.chimney=true;
+}
+if(type==="roof"){
+if(state.done.chimney&&(state.inv["لوح خشب"]||0)>=2){spend("لوح خشب",2);q=100;msg="ثبّتِ الأجزاء المتضررة من السقف بعد تجهيز التدفئة."}
+else if((state.inv.خشب||0)>=1){spend("خشب");q=55;msg="وضعتِ قطعة خشب كحل مؤقت للسقف."}
+else{q=35;msg="حاولتِ إصلاح السقف دون مادة مناسبة."}
+if(q>=55)state.done.roof=true;
+}
+if(type==="window"){
+if(spend("زجاج")&&spend("لوح خشب")){q=100;msg="ركبتِ الزجاج وثبّتِ الإطار."}
+else if(spend("قماش")){q=70;msg="غطيتِ الشباك بالقماش لتقليل دخول الهواء."}
+else if(spend("خشب")){q=50;msg="وضعتِ لوحًا على الفتحة، لكنه لا يعزل جيدًا."}
+else{q=30;msg="لم تجدي مادة مناسبة للشباك."}
+if(q>=50)state.done.window=true;
+}
+if(type==="wall"){
+if((state.inv.طوب||0)>=2&&state.inv.طين){spend("طوب",2);spend("طين");q=100;msg="رممتِ الجزء المكسور بالطوب والطين."}
+else if(spend("طوب")){q=70;msg="أغلقتِ جزءًا من الحائط بالطوب."}
+else{q=35;msg="حاولتِ سد الحائط دون مواد كافية."}
+if(q>=70)state.done.wall=true;
+}
+change(0,-3,0);evaluate(q,msg);render();check();
+}
+function searchArea(){
+if(ended)return;if(state.searched>=5){say("فتشتِ المكان بما يكفي. لم يبقَ شيء واضح للعثور عليه.");return}
+const pool=["خشب","مسمار","طوب","قماش","ورق","زجاج مكسور","طين"];const item=pool[Math.floor(Math.random()*pool.length)];add(item);state.searched++;change(-1,-5,2);say("فتشتِ تحت الركام ووجدتِ: "+item+".");render();check()
+}
+function craft(name){
+const r=recipes[name];if(!r)return;for(const k in r.need)if((state.inv[k]||0)<r.need[k]){say("المواد غير كافية لصناعة "+name+".");return}
+for(const k in r.need)spend(k,r.need[k]);for(const k in r.give)add(k,r.give[k]);change(0,-2,0);say("صنعتِ "+name+" بنجاح.");render()
+}
+function rest(){
+if(ended)return;if(state.done.chimney){change(7,-2,-10);say("استرحتِ قرب التدفئة. حالتها تحسنت قليلًا.");}
+else{change(-5,-2,5);say("لا توجد تدفئة بعد. الراحة في هذا البرد أضرت بها.");}render();check()
+}
+function inspect(){
+if(ended)return;change(0,-2,0);let missing=[];if(!state.done.chimney)missing.push("المدخنة");if(!state.done.roof)missing.push("السقف");if(!state.done.window)missing.push("الشباك");if(!state.done.wall)missing.push("الحائط");say("فحصتِ المكان. الأجزاء التي تحتاج عملاً: "+missing.join("، ")+"."+(state.done.chimney?" التدفئة أصبحت ممكنة.":" المدفأة ما زالت غير جاهزة."));render();check()
+}
+function actions(){
+const b=[["🔎 فحص الخرابة","اعرفي الأولويات",inspect],["🔍 البحث عن أدوات","يستهلك 5 ثوانٍ",searchArea],["🔥 المدخنة","التدفئة مهمة",function(){repair("chimney")}],["🏚️ السقف","منع دخول الثلج",function(){repair("roof")}],["🪟 الشباك","تقليل الهواء",function(){repair("window")}],["🧱 الحائط","تقليل تسرب البرد",function(){repair("wall")}],["🫖 راحة","أفضل بعد تشغيل التدفئة",rest]];
+$("choices").innerHTML=b.map(function(x,i){return '<button class="btn '+(i===2&&!state.done.chimney?"primary":"")+'" onclick="_actions['+i+']()">'+x[0]+'<small>'+x[1]+"</small></button>"}).join("");window._actions=b.map(function(x){return x[2]})
+}
+function render(){
+$("hp").textContent=Math.round(state.hp);$("hpf").style.width=state.hp+"%";$("time").textContent=Math.ceil(state.time);$("tmf").style.width=Math.min(100,state.time/120*100)+"%";$("cold").textContent=state.cold<25?"دافئ":state.cold<55?"بارد":state.cold<75?"شديد البرودة":"قارس";$("clf").style.width=state.cold+"%";
+$("chapter").textContent=state.chapter===1?"الفصل 1 · الوصول":state.chapter===2?"الفصل 2 · العاصفة":"الفصل 3 · النجاة";$("woman").textContent=state.cold>70?"🥶":state.cold>45?"😰":state.cold>25?"🙂":"🧣🔥";
+["roof","window","wall","chimney"].forEach(function(x){$(x).classList.toggle("fixed",state.done[x])});
+$("inventory").innerHTML=Object.entries(state.inv).filter(function(a){return a[1]>0}).map(function(a){return '<span class="chip">'+a[1]+"× "+a[0]+"</span>"}).join("")||'<span class="chip">فارغة</span>';
+$("crafting").innerHTML=Object.keys(recipes).map(function(k){return '<button class="btn" style="min-height:45px;padding:7px" onclick="craft(\''+k+'\')">🛠️ '+k+"</button>"}).join("");actions();save()
+}
+function check(){
+if(ended)return;if(Object.values(state.done).every(Boolean)){state.chapter=3;end("نجاة ❤️","نجحتِ في تحويل الخرابة إلى مأوى دافئ. اختياراتك وترتيب إصلاحاتك أنقذا الليلة.");return}
+if(state.time<=0||state.hp<=0){end("انتهت الليلة","لم يعد لديكِ وقت أو طاقة كافية. حاولي في المرة القادمة جمع المواد وفحص المكان قبل القرارات المهمة.");return}
+if(state.time<=60&&state.chapter===1){state.chapter=2;say("العاصفة اشتدت! الثلج يدخل من الفتحات. الآن كل قرار له ثمن.")}
+}
+function end(title,text){ended=true;clearInterval(tick);$("endTitle").textContent=title;$("endText").textContent=text;$("end").style.display="flex";save()}
+function newGame(){localStorage.removeItem(KEY);location.reload()}
+function snow(){const e=document.createElement("span");e.className="snow";e.textContent="❄";e.style.left=Math.random()*100+"%";e.style.animationDuration=(2+Math.random()*3)+"s";e.style.fontSize=(9+Math.random()*10)+"px";$("scene").appendChild(e);setTimeout(function(){e.remove()},5500)}
+const tick=setInterval(function(){if(ended)return;change(state.done.chimney?(state.done.roof?-.04:-.12):-.55,-1,state.done.chimney?.05:.3);check();render()},1000);
+setInterval(snow,220);render();check();
+</script>
+</body>
+</html>
