@@ -39,7 +39,7 @@ func _make_label(text_value: String, size: int) -> Label:
     label.add_theme_font_size_override("font_size", size)
     label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    label.text_direction = Control.TEXT_DIRECTION_AUTO
+    label.text_direction = Control.TEXT_DIRECTION_RTL
     return label
 
 func _make_button(text_value: String) -> Button:
