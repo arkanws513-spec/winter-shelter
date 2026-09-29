@@ -165,6 +165,7 @@ function updateMatchHud(){
   if(el)el.textContent="المباراة: "+matchPlayerWins+" — "+matchEnemyWins;
 }
 function newState(){
+  battleNumber++;battleEnding=false;
   const deck=shuffle(cardPool);
   discover(deck.slice(0,10).map(x=>x.id));
   state={
@@ -173,6 +174,8 @@ function newState(){
     energy:3,round:1,combo:0,selected:null,target:null,over:false,turn:"player",
     usedIds:deck.slice(0,10).map(x=>x.id)
   };
+  state.player.forEach(u=>u.used=false);
+  updateMatchHud();
   render();
   msg("تم توزيع 10 بطاقات عشوائيًا من أصل 30: 5 لك و5 للخصم.");
 }
@@ -239,7 +242,6 @@ function playCard(pi,ei){
   if(p.id==="c03"||p.id==="c16"){p.hp=Math.min(p.max,p.hp+(p.id==="c16"?4:3));}
   if(p.id==="c18"){e.atkDebuff=2;}
   if(p.id==="c13")state.energy=Math.min(5,state.energy+1);
-  if(p.id==="c13")state.energy=Math.min(5,state.energy+1);
   if(p.id==="c25"||p.id==="c08"||p.id==="c29"){e.skip=1;}
   if(p.id==="c01"){p.shield=5;}
   if(p.id==="c07"){p.shield=4;}
@@ -251,7 +253,6 @@ function playCard(pi,ei){
   e.hp=Math.max(0,e.hp-dmg);
 
   if(p.id==="c02")p.hp=Math.max(0,p.hp-1);
-  if(p.id==="c06"&&alive(state.enemy).length===1)dmg+=2;
   if(p.id==="c12")p.skip=1;
   if(p.id==="c26")p.skip=1;
   if(p.id==="c10"&&e.hp>0)state.energy=Math.min(5,state.energy+1);
@@ -283,8 +284,8 @@ function enemyTurn(){
     if(target.id==="c22"&&!target.used){dmg=Math.floor(dmg/3);target.used=true;}
     target.hp=Math.max(0,target.hp-dmg);
   }
-  if(alive(state.player).length===0){finish(false);return;}
-  state.player.forEach(u=>{u.atkDebuff=0;});
+  if(alive(state.player).length===0){finishBattle(false);return;}
+  state.player.forEach(u=>{u.atkDebuff=0;u.used=false;});
   state.round++;
   state.energy=Math.min(5,state.energy+2);
   state.turn="player";
@@ -326,6 +327,7 @@ function checkWin(){
   else if(alive(state.player).length===0)finishBattle(false);
 }
 function finish(win){finishBattle(win);}
+
 document.getElementById("endTurn").onclick=endTurn;
 document.getElementById("reset").onclick=newState;
 document.getElementById("playAgain").onclick=()=>{document.getElementById("overlay").classList.remove("show");showScreen("battleScreen");if(matchOver)startMatch();else newState();};
