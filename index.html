@@ -20,10 +20,33 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.app{width:min(100%,56
 .handTitle{display:flex;justify-content:space-between;align-items:center;padding:2px 4px}.handTitle b{font-size:16px}.handTitle span{font-size:10px;color:var(--muted)}
 .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.card{text-align:right;background:linear-gradient(160deg,#1b2440,#10172b);border:1px solid #ffffff18;border-radius:18px;padding:11px;min-height:165px;box-shadow:0 8px 18px #0004;transition:.15s}.card:active{transform:scale(.97)}.card:disabled{opacity:.42}.card .icon{font-size:34px;line-height:1}.tag{float:left;font-size:9px;color:var(--gold);background:#f5c76b12;padding:4px 6px;border-radius:7px}.card h3{margin:9px 0 4px;font-size:14px}.desc{font-size:11px;color:var(--muted);line-height:1.45;min-height:29px}.cost{display:inline-flex;margin-top:6px;background:#5da9ff18;color:#8bc5ff;padding:4px 7px;border-radius:7px;font-size:9px}.controls{display:flex;gap:7px}.mainbtn{flex:1;padding:12px;border-radius:14px;font-weight:900;background:linear-gradient(135deg,#e9b95e,#f5d27e);color:#17120a}.mainbtn:disabled{opacity:.4}.ghost{padding:12px 15px;border-radius:14px;background:#ffffff09;border:1px solid #ffffff12}
 .overlay{position:fixed;inset:0;background:#050711e8;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.overlay.show{display:flex}.modal{width:min(100%,430px);background:linear-gradient(160deg,#1a2340,#0e1426);border:1px solid #ffffff18;border-radius:25px;padding:23px;text-align:center;box-shadow:0 30px 90px #000b}.big{font-size:60px}.modal h1{margin:7px 0;font-size:27px}.modal p{color:var(--muted);line-height:1.6;font-size:12px}.small{font-size:10px;color:#7f8aa5;text-align:center}@media(min-width:480px){.app{padding-left:14px;padding-right:14px}.card{min-height:180px;padding:12px}.card .icon{font-size:36px}}
+
+/* 2.0 */
+.screen{display:none}.screen.show{display:flex}.home{flex-direction:column;gap:12px}.hero{padding:20px 16px;border-radius:23px;background:linear-gradient(145deg,#1c2a50,#11172b);border:1px solid #ffffff14;box-shadow:0 18px 50px #0007}.hero h1{font-size:28px;margin:0 0 5px}.hero p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}.profile{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.profileBox{background:#ffffff08;border:1px solid #ffffff0d;border-radius:13px;padding:9px}.profileBox span{font-size:9px;color:var(--muted)}.profileBox b{display:block;font-size:18px;margin-top:2px}.xpTrack{height:7px;background:#0b1020;border-radius:8px;overflow:hidden;margin-top:8px}.xpFill{height:100%;background:linear-gradient(90deg,#f5c76b,#a98cff);width:0;transition:.3s}.menuGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.menuBtn{padding:16px 10px;border-radius:17px;background:linear-gradient(160deg,#19233e,#10172a);border:1px solid #ffffff12;text-align:right;font-weight:800}.menuBtn strong{display:block;font-size:16px}.menuBtn span{display:block;color:var(--muted);font-size:9px;margin-top:4px}.primaryWide{grid-column:1/-1;padding:15px;border-radius:16px;background:linear-gradient(135deg,#e9b95e,#f5d27e);color:#17120a;font-weight:900;font-size:15px}.battleBack{width:100%;padding:10px;border-radius:12px;background:#ffffff09;border:1px solid #ffffff10;color:var(--muted)}.panel{position:fixed;inset:0;background:#050711ef;z-index:20;display:none;align-items:flex-end;justify-content:center;padding:10px}.panel.show{display:flex}.panelBox{width:min(100%,560px);max-height:90vh;overflow:auto;background:linear-gradient(160deg,#19223e,#0c1222);border:1px solid #ffffff16;border-radius:25px 25px 15px 15px;padding:15px}.panelHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.panelHead h2{margin:0;font-size:20px}.close{padding:8px 11px;border-radius:10px;background:#ffffff0b}.statsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat{background:#ffffff08;border:1px solid #ffffff0d;border-radius:14px;padding:12px}.stat span{font-size:9px;color:var(--muted)}.stat b{display:block;font-size:20px;margin-top:4px}.collection{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.collectCard{background:#ffffff07;border:1px solid #ffffff10;border-radius:13px;padding:9px;text-align:center;min-height:105px}.collectCard.locked{filter:grayscale(1);opacity:.35}.collectCard .ci{font-size:28px}.collectCard b{display:block;font-size:9px;margin-top:4px}.quest{padding:11px;background:#ffffff07;border:1px solid #ffffff0d;border-radius:13px;margin-bottom:7px}.quest b{font-size:11px}.quest span{display:block;color:var(--muted);font-size:9px;margin-top:4px}.questBar{height:5px;background:#0a0f1d;border-radius:5px;margin-top:8px;overflow:hidden}.questBar i{display:block;height:100%;background:linear-gradient(90deg,#61d69b,#61b1ff)}
 </style>
 </head>
 <body>
 <div class="app">
+<section class="home screen show" id="homeScreen">
+  <div class="hero">
+    <h1>أساطير <span style="color:var(--gold)">البطاقات</span></h1>
+    <p>ابنِ سجلك، اجمع البطاقات، وادخل مباريات 5 ضد 5 بتوزيع مختلف في كل مرة.</p>
+    <div class="profile">
+      <div class="profileBox"><span>مستواك</span><b id="homeLevel">1</b><div class="xpTrack"><div class="xpFill" id="xpFill"></div></div></div>
+      <div class="profileBox"><span>الخبرة</span><b id="homeXp">0 / 100</b></div>
+    </div>
+  </div>
+  <div class="menuGrid">
+    <button class="primaryWide" id="startGame">⚔️ ابدأ مباراة</button>
+    <button class="menuBtn" id="openCollection"><strong>🃏 مجموعتي</strong><span id="collectionCount">0 / 30 بطاقة</span></button>
+    <button class="menuBtn" id="openStats"><strong>📊 إحصائياتي</strong><span>الانتصارات والخسائر والخبرة</span></button>
+    <button class="menuBtn" id="openQuests"><strong>🎯 الأهداف</strong><span>تحديات قصيرة تكافئك بالخبرة</span></button>
+    <button class="menuBtn" id="openEncyclopedia"><strong>📖 موسوعة البطاقات</strong><span>شاهد تفاصيل البطاقات المكتشفة</span></button>
+  </div>
+  <div class="small">30 بطاقة فريدة · كل مباراة توزيع عشوائي · تقدمك محفوظ على هذا الجهاز</div>
+</section>
+<section class="screen" id="battleScreen" style="flex-direction:column;gap:9px">
+<button class="battleBack" id="backHome">‹ العودة للرئيسية</button>
 <div class="top"><div class="logo">أساطير <span>البطاقات</span></div><div class="round" id="round">الدور 1</div></div>
 <section class="arena">
 <div class="teamTitle"><b>فريق الخصم</b><span id="enemyCount">5 بطاقات</span></div>
@@ -39,6 +62,9 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.app{width:min(100%,56
 <div class="controls"><button class="mainbtn" id="endTurn">إنهاء الدور</button><button class="ghost" id="reset">↻</button></div>
 <div class="small">مجموعة 30 بطاقة فريدة — في كل مباراة تحصل أنت والخصم على 5 بطاقات مختلفة عشوائيًا</div>
 </div>
+
+<div class="panel" id="infoPanel"><div class="panelBox"><div class="panelHead"><h2 id="panelTitle"></h2><button class="close" id="closePanel">✕</button></div><div id="panelContent"></div></div></div>
+</section>
 <div class="overlay" id="overlay"><div class="modal"><div class="big" id="resultIcon">🏆</div><h1 id="resultTitle"></h1><p id="resultText"></p><button class="mainbtn" id="playAgain">مباراة جديدة</button></div></div>
 <script>
 const cardPool=[
@@ -74,6 +100,57 @@ const cardPool=[
 {id:"c30",name:"قلب النجمة",icon:"💫",hp:25,max:25,atk:7,cost:2,role:"أسطوري",desc:"تزداد قوتها قليلًا مع كل حليف ساقط.",side:"ثمن القوة"}
 ];
 
+
+const PROFILE_KEY="card_legends_profile_v2";
+const defaultProfile={xp:0,level:1,wins:0,losses:0,matches:0,plays:0,kills:0,unlocked:[],questWins:0,questKills:0};
+function loadProfile(){try{return {...defaultProfile,...JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}")};}catch{return {...defaultProfile};}}
+let profile=loadProfile();
+function saveProfile(){localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}
+function xpNeed(){return 100+(profile.level-1)*50;}
+function addXP(amount){profile.xp+=amount;while(profile.xp>=xpNeed()){profile.xp-=xpNeed();profile.level++;}saveProfile();}
+function discover(ids){profile.unlocked=[...new Set([...profile.unlocked,...ids])];saveProfile();}
+function updateHome(){
+  document.getElementById("homeLevel").textContent=profile.level;
+  document.getElementById("homeXp").textContent=profile.xp+" / "+xpNeed();
+  document.getElementById("xpFill").style.width=(profile.xp/xpNeed()*100)+"%";
+  document.getElementById("collectionCount").textContent=profile.unlocked.length+" / 30 بطاقة";
+}
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(x=>x.classList.remove("show"));
+  document.getElementById(id).classList.add("show");
+  updateHome();
+}
+function openPanel(title,html){document.getElementById("panelTitle").textContent=title;document.getElementById("panelContent").innerHTML=html;document.getElementById("infoPanel").classList.add("show");}
+function closePanel(){document.getElementById("infoPanel").classList.remove("show");}
+function renderStats(){
+  const rate=profile.matches?Math.round(profile.wins/profile.matches*100):0;
+  openPanel("إحصائياتي",'<div class="statsGrid">'+
+    '<div class="stat"><span>المستوى</span><b>'+profile.level+'</b></div>'+
+    '<div class="stat"><span>الخبرة الحالية</span><b>'+profile.xp+' / '+xpNeed()+'</b></div>'+
+    '<div class="stat"><span>الانتصارات</span><b>'+profile.wins+'</b></div>'+
+    '<div class="stat"><span>الخسائر</span><b>'+profile.losses+'</b></div>'+
+    '<div class="stat"><span>المباريات</span><b>'+profile.matches+'</b></div>'+
+    '<div class="stat"><span>نسبة الفوز</span><b>'+rate+'%</b></div>'+
+    '<div class="stat"><span>الهجمات</span><b>'+profile.plays+'</b></div>'+
+    '<div class="stat"><span>البطاقات المسقطة</span><b>'+profile.kills+'</b></div>'+
+  '</div>');
+}
+function renderQuests(){
+  const qs=[
+    ["اربح مباراتين",profile.wins,2],
+    ["أسقط 5 بطاقات",profile.kills,5],
+    ["نفّذ 10 هجمات",profile.plays,10]
+  ];
+  openPanel("الأهداف",qs.map(q=>'<div class="quest"><b>'+q[0]+'</b><span>'+Math.min(q[1],q[2])+' / '+q[2]+'</span><div class="questBar"><i style="width:'+Math.min(100,q[1]/q[2]*100)+'%"></i></div></div>').join("")+
+  '<div class="small">الأهداف تتقدم تلقائيًا أثناء اللعب.</div>');
+}
+function renderCollection(){
+  openPanel("مجموعتي",'<div class="collection">'+cardPool.map(c=>{const on=profile.unlocked.includes(c.id);return '<div class="collectCard '+(on?"":"locked")+'"><div class="ci">'+(on?c.icon:"❔")+'</div><b>'+(on?c.name:"بطاقة مقفلة")+'</b><span style="font-size:8px;color:var(--muted)">'+(on?c.role:"اكتشفها في مباراة")+'</span></div>';}).join("")+'</div>');
+}
+function renderEncyclopedia(){
+  openPanel("موسوعة البطاقات",'<div>'+cardPool.map(c=>{const on=profile.unlocked.includes(c.id);return '<div class="quest"><b>'+c.icon+" "+(on?c.name:"بطاقة غير مكتشفة")+'</b><span>'+(on?("HP "+c.max+" · هجوم "+c.atk+" · طاقة "+c.cost+" · "+c.role+" — "+c.desc):"العب مباريات لاكتشاف هذه البطاقة.")+'</span></div>';}).join("")+'</div>');
+}
+
 let state;
 function freshCard(x){return {...x,hp:x.max,shield:0,skip:0,used:false};}
 function shuffle(arr){
@@ -83,6 +160,7 @@ function shuffle(arr){
 }
 function newState(){
   const deck=shuffle(cardPool);
+  discover(deck.slice(0,10).map(x=>x.id));
   state={
     player:deck.slice(0,5).map(freshCard),
     enemy:deck.slice(5,10).map(freshCard),
@@ -134,6 +212,7 @@ function playCard(pi,ei){
   if(!p||!e||p.hp<=0||e.hp<=0)return;
   if(state.energy<p.cost){msg("هذه البطاقة تحتاج طاقة أكثر.");return;}
   state.energy-=p.cost;
+  profile.plays++;saveProfile();
   let dmg=p.atk;
   if(p.id==="c14") dmg=p.atk+(state.round%2===0?3:-1);
   if(p.id==="c19" && alive(state.player).some(x=>x.hp<x.max*.45))dmg+=2;
@@ -166,7 +245,7 @@ function playCard(pi,ei){
   if(p.id==="c26")p.skip=1;
   if(p.id==="c10"&&e.hp>0)state.energy=Math.min(5,state.energy+1);
 
-  if(e.hp<=0){state.combo++;msg(p.name+" لعب بطاقته وأسقط "+e.name+". السلسلة "+state.combo+"!");}
+  if(e.hp<=0){profile.kills++;profile.questKills++;saveProfile();state.combo++;msg(p.name+" لعب بطاقته وأسقط "+e.name+". السلسلة "+state.combo+"!");}
   else{state.combo=0;msg(p.name+" أصاب "+e.name+" بـ "+dmg+" نقطة.");}
 
   state.selected=null;state.target=null;
@@ -206,7 +285,12 @@ function checkWin(){
   else if(alive(state.player).length===0)finish(false);
 }
 function finish(win){
-  state.over=true;render();
+  if(state.over)return;
+  state.over=true;
+  profile.matches++;
+  if(win){profile.wins++;profile.questWins++;addXP(50);}
+  else {profile.losses++;addXP(20);}
+  saveProfile();updateHome();render();
   document.getElementById("resultIcon").textContent=win?"🏆":"💫";
   document.getElementById("resultTitle").textContent=win?"انتصار!":"انتهت المباراة";
   document.getElementById("resultText").textContent=win?"فزت باستخدام 5 بطاقات من مجموعة 30 بطاقة.":"انتهت بطاقات فريقك. جرّب توزيعًا عشوائيًا جديدًا.";
@@ -214,8 +298,16 @@ function finish(win){
 }
 document.getElementById("endTurn").onclick=endTurn;
 document.getElementById("reset").onclick=newState;
-document.getElementById("playAgain").onclick=()=>{document.getElementById("overlay").classList.remove("show");newState();};
-newState();
+document.getElementById("playAgain").onclick=()=>{document.getElementById("overlay").classList.remove("show");showScreen("battleScreen");newState();};
+document.getElementById("startGame").onclick=()=>{showScreen("battleScreen");newState();};
+document.getElementById("backHome").onclick=()=>{showScreen("homeScreen");};
+document.getElementById("openStats").onclick=renderStats;
+document.getElementById("openQuests").onclick=renderQuests;
+document.getElementById("openCollection").onclick=renderCollection;
+document.getElementById("openEncyclopedia").onclick=renderEncyclopedia;
+document.getElementById("closePanel").onclick=closePanel;
+updateHome();
+showScreen("homeScreen");
 </script>
 </body>
 </html>
