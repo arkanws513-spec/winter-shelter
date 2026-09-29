@@ -46,7 +46,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.app{width:min(100%,56
   <div class="small">30 بطاقة فريدة · كل مباراة توزيع عشوائي · تقدمك محفوظ على هذا الجهاز</div>
 </section>
 <section class="screen" id="battleScreen" style="flex-direction:column;gap:9px">
-<button class="battleBack" id="backHome">‹ العودة للرئيسية</button>
+<div style="display:flex;gap:7px">
+<button class="battleBack" id="backPrev" style="flex:1">‹ السابق</button>
+<button class="battleBack" id="backHome" style="flex:1">⌂ الصفحة الرئيسية</button>
+</div>
 <div class="top"><div class="logo">أساطير <span>البطاقات</span></div><div class="round" id="round">المعركة 1 من 3 · الدور 1</div></div>
 <section class="arena">
 <div class="teamTitle"><b>فريق الخصم</b><span id="enemyCount">5 بطاقات</span></div>
@@ -338,7 +341,14 @@ document.getElementById("playAgain").onclick=()=>{
   }
 };
 document.getElementById("startGame").onclick=()=>{showScreen("battleScreen");startMatch();};
-document.getElementById("backHome").onclick=()=>{showScreen("homeScreen");};
+document.getElementById("backPrev").onclick=()=>{
+  if(document.getElementById("overlay").classList.contains("show"))return;
+  showScreen("homeScreen");
+};
+document.getElementById("backHome").onclick=()=>{
+  document.getElementById("overlay").classList.remove("show");
+  showScreen("homeScreen");
+};
 document.getElementById("openStats").onclick=renderStats;
 document.getElementById("openQuests").onclick=renderQuests;
 document.getElementById("openCollection").onclick=renderCollection;
