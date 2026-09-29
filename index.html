@@ -293,7 +293,7 @@ function enemyTurn(){
   render();
 }
 function finishMatch(win){
-  if(matchOver===false)return;
+  if(!matchOver)return;
   profile.matches++;
   if(win){profile.wins++;profile.questWins++;addXP(50);}
   else {profile.losses++;addXP(20);}
@@ -311,16 +311,14 @@ function finishBattle(win){
   updateMatchHud();render();
   if(matchPlayerWins>=2||matchEnemyWins>=2){
     matchOver=true;
-    setTimeout(()=>finishMatch(matchPlayerWins>=2),500);
+    finishMatch(matchPlayerWins>=2);
     return;
   }
-  setTimeout(()=>{
-    document.getElementById("resultIcon").textContent=win?"⚔️":"🛡️";
-    document.getElementById("resultTitle").textContent="انتهت المعركة "+battleNumber;
-    document.getElementById("resultText").textContent="النتيجة "+matchPlayerWins+" — "+matchEnemyWins+(matchPlayerWins===1&&matchEnemyWins===1?" · المعركة الثالثة حاسمة!":" · استعد للمعركة التالية.");
-    document.getElementById("playAgain").textContent="المعركة التالية";
-    document.getElementById("overlay").classList.add("show");
-  },450);
+  document.getElementById("resultIcon").textContent=win?"⚔️":"🛡️";
+  document.getElementById("resultTitle").textContent="انتهت المعركة "+battleNumber;
+  document.getElementById("resultText").textContent="النتيجة "+matchPlayerWins+" — "+matchEnemyWins+(matchPlayerWins===1&&matchEnemyWins===1?" · المعركة الثالثة حاسمة!":" · استعد للمعركة التالية.");
+  document.getElementById("playAgain").textContent="المعركة التالية";
+  document.getElementById("overlay").classList.add("show");
 }
 function checkWin(){
   if(alive(state.enemy).length===0)finishBattle(true);
@@ -330,7 +328,15 @@ function finish(win){finishBattle(win);}
 
 document.getElementById("endTurn").onclick=endTurn;
 document.getElementById("reset").onclick=newState;
-document.getElementById("playAgain").onclick=()=>{document.getElementById("overlay").classList.remove("show");showScreen("battleScreen");if(matchOver)startMatch();else newState();};
+document.getElementById("playAgain").onclick=()=>{
+  document.getElementById("overlay").classList.remove("show");
+  showScreen("battleScreen");
+  if(matchOver){
+    startMatch();
+  }else{
+    newState();
+  }
+};
 document.getElementById("startGame").onclick=()=>{showScreen("battleScreen");startMatch();};
 document.getElementById("backHome").onclick=()=>{showScreen("homeScreen");};
 document.getElementById("openStats").onclick=renderStats;
