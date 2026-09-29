@@ -19,8 +19,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.app{width:min(100%,56
 .message{min-height:38px;display:grid;place-items:center;text-align:center;color:#dce3f5;font-size:12px;padding:3px}
 .handTitle{display:flex;justify-content:space-between;align-items:center;padding:2px 4px}.handTitle b{font-size:16px}.handTitle span{font-size:10px;color:var(--muted)}
 .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.card{text-align:right;background:linear-gradient(160deg,#1b2440,#10172b);border:1px solid #ffffff18;border-radius:18px;padding:11px;min-height:165px;box-shadow:0 8px 18px #0004;transition:.15s}.card:active{transform:scale(.97)}.card:disabled{opacity:.42}.card .icon{font-size:34px;line-height:1}.tag{float:left;font-size:9px;color:var(--gold);background:#f5c76b12;padding:4px 6px;border-radius:7px}.card h3{margin:9px 0 4px;font-size:14px}.desc{font-size:11px;color:var(--muted);line-height:1.45;min-height:29px}.cost{display:inline-flex;margin-top:6px;background:#5da9ff18;color:#8bc5ff;padding:4px 7px;border-radius:7px;font-size:9px}.controls{display:flex;gap:7px}.mainbtn{flex:1;padding:12px;border-radius:14px;font-weight:900;background:linear-gradient(135deg,#e9b95e,#f5d27e);color:#17120a}.mainbtn:disabled{opacity:.4}.ghost{padding:12px 15px;border-radius:14px;background:#ffffff09;border:1px solid #ffffff12}
-.overlay{position:fixed;inset:0;background:#050711e8;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.overlay.show{display:flex}.modal{width:min(100%,430px);background:linear-gradient(160deg,#1a2340,#0e1426);border:1px solid #ffffff18;border-radius:25px;padding:23px;text-align:center;box-shadow:0 30px 90px #000b}.big{font-size:60px}.modal h1{margin:7px 0;font-size:27px}.modal p{color:var(--muted);line-height:1.6;font-size:12px}
-.small{font-size:10px;color:#7f8aa5;text-align:center}@media(min-width:480px){.app{padding-left:14px;padding-right:14px}.card{min-height:180px;padding:12px}.card .icon{font-size:36px}}
+.overlay{position:fixed;inset:0;background:#050711e8;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.overlay.show{display:flex}.modal{width:min(100%,430px);background:linear-gradient(160deg,#1a2340,#0e1426);border:1px solid #ffffff18;border-radius:25px;padding:23px;text-align:center;box-shadow:0 30px 90px #000b}.big{font-size:60px}.modal h1{margin:7px 0;font-size:27px}.modal p{color:var(--muted);line-height:1.6;font-size:12px}.small{font-size:10px;color:#7f8aa5;text-align:center}@media(min-width:480px){.app{padding-left:14px;padding-right:14px}.card{min-height:180px;padding:12px}.card .icon{font-size:36px}}
 </style>
 </head>
 <body>
@@ -32,7 +31,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.app{width:min(100%,56
 <div class="vs">⚔️ اختر بطاقتك ثم الهدف</div>
 <div class="teamTitle"><b>فريقك</b><span id="playerCount">5 بطاقات</span></div>
 <div class="board" id="playerBoard"></div>
-<div class="energyBar"><div class="energyHead"><span>طاقة الهجوم</span><b id="energyLabel">3 / 5</b></div><div class="energyTrack"><div class="energyFill" id="energyFill"></div></div><div class="energyDots" id="energyDots"></div></div><div class="status"><div class="pill">الطاقة<b id="energy">3</b></div><div class="pill">الدور<b id="turn">أنت</b></div><div class="pill">سلسلة<b id="combo">0</b></div></div>
+<div class="energyBar"><div class="energyHead"><span>طاقة الهجوم</span><b id="energyLabel">3 / 5</b></div><div class="energyTrack"><div class="energyFill" id="energyFill"></div></div><div class="energyDots" id="energyDots"></div></div>
+<div class="status"><div class="pill">الطاقة<b id="energy">3</b></div><div class="pill">الدور<b id="turn">أنت</b></div><div class="pill">سلسلة<b id="combo">0</b></div></div>
 <div class="message" id="message">اختر واحدة من بطاقاتك الخمس.</div>
 </section>
 <div class="handTitle"><b>بطاقات القدرات</b><span>كل بطاقة لها تأثير جانبي</span></div>
@@ -58,7 +58,20 @@ const enemyBase=[
 ];
 let state;
 function freshUnit(x){return {...x,hp:x.max,stunned:0,guarded:false};}
-function newState(){state={player:units.map(freshUnit),enemy:enemyBase.map(freshUnit),energy:3,round:1,combo:0,selected:null,target:null,over:false,turn:"player",hand:[]};dealHand();render();msg("اختر بطاقة من فريقك ثم اختر هدفًا من الخصم.");}\nfunction dealHand(){state.hand=[];const pool=[...Array(units.length).keys()];while(state.hand.length<3){const i=pool.splice(Math.floor(Math.random()*pool.length),1)[0];state.hand.push(i);if(pool.length===0)break;} }
+function newState(){
+state={player:units.map(freshUnit),enemy:enemyBase.map(freshUnit),energy:3,round:1,combo:0,selected:null,target:null,over:false,turn:"player",hand:[]};
+dealHand();
+render();
+msg("اختر بطاقة من فريقك ثم اختر هدفًا من الخصم.");
+}
+function dealHand(){
+state.hand=[];
+const pool=[...Array(units.length).keys()];
+while(state.hand.length<3&&pool.length){
+const i=pool.splice(Math.floor(Math.random()*pool.length),1)[0];
+state.hand.push(i);
+}
+}
 function alive(arr){return arr.filter(x=>x.hp>0);}
 function msg(t){document.getElementById("message").textContent=t;}
 function unitHtml(u,i,enemy){
@@ -67,60 +80,113 @@ return '<button class="unit '+(u.hp<=0?"dead ":"")+(state.selected===i&&!enemy?"
 }
 function render(){
 const pb=document.getElementById("playerBoard"),eb=document.getElementById("enemyBoard");
-pb.innerHTML=state.player.map((u,i)=>unitHtml(u,i,false)).join("");eb.innerHTML=state.enemy.map((u,i)=>unitHtml(u,i,true)).join("");
-state.player.forEach((u,i)=>{if(u.hp>0)pb.children[i].onclick=()=>selectPlayer(i)});
-state.enemy.forEach((u,i)=>{if(u.hp>0)eb.children[i].onclick=()=>selectTarget(i)});
-document.getElementById("energy").textContent=state.energy;document.getElementById("energyLabel").textContent=state.energy+" / 5";document.getElementById("energyFill").style.width=(state.energy/5*100)+"%";document.getElementById("energyDots").innerHTML=Array.from({length:5},(_,i)=>"<span class=\"energyDot "+(i<state.energy?"on":"")+"\"></span>").join("");document.getElementById("round").textContent="الدور "+state.round;
-document.getElementById("turn").textContent=state.turn==="player"?"أنت":"الخصم";document.getElementById("combo").textContent=state.combo;
-document.getElementById("playerCount").textContent=alive(state.player).length+" بطاقات";document.getElementById("enemyCount").textContent=alive(state.enemy).length+" بطاقات";
-renderCards();document.getElementById("endTurn").disabled=state.over||state.turn!=="player";
+pb.innerHTML=state.player.map((u,i)=>unitHtml(u,i,false)).join("");
+eb.innerHTML=state.enemy.map((u,i)=>unitHtml(u,i,true)).join("");
+state.player.forEach((u,i)=>{if(u.hp>0)pb.children[i].onclick=()=>selectPlayer(i);});
+state.enemy.forEach((u,i)=>{if(u.hp>0)eb.children[i].onclick=()=>selectTarget(i);});
+document.getElementById("energy").textContent=state.energy;
+document.getElementById("energyLabel").textContent=state.energy+" / 5";
+document.getElementById("energyFill").style.width=(state.energy/5*100)+"%";
+document.getElementById("energyDots").innerHTML=Array.from({length:5},(_,i)=>'<span class="energyDot '+(i<state.energy?"on":"")+'"></span>').join("");
+document.getElementById("round").textContent="الدور "+state.round;
+document.getElementById("turn").textContent=state.turn==="player"?"أنت":"الخصم";
+document.getElementById("combo").textContent=state.combo;
+document.getElementById("playerCount").textContent=alive(state.player).length+" بطاقات";
+document.getElementById("enemyCount").textContent=alive(state.enemy).length+" بطاقات";
+renderCards();
+document.getElementById("endTurn").disabled=state.over||state.turn!=="player";
 }
 function renderCards(){
-const wrap=document.getElementById("cards");wrap.innerHTML="";
-state.hand.forEach((i)=>{const c=units[i];const b=document.createElement("button");b.className="card";const ready=state.player[i].hp>0&&state.energy>=c.cost&&state.turn==="player"&&!state.over;b.disabled=!ready;
+const wrap=document.getElementById("cards");
+wrap.innerHTML="";
+state.hand.forEach(i=>{
+const c=units[i],b=document.createElement("button");
+b.className="card";
+const ready=state.player[i].hp>0&&state.energy>=c.cost&&state.turn==="player"&&!state.over;
+b.disabled=!ready;
 b.innerHTML='<span class="tag">'+c.role+'</span><div class="icon">'+c.icon+'</div><h3>'+c.name+'</h3><div class="desc">'+c.desc+'</div><span class="cost">⚡ '+c.cost+' · '+c.side+'</span>';
-b.onclick=()=>selectPlayer(i);wrap.appendChild(b);});
+b.onclick=()=>selectPlayer(i);
+wrap.appendChild(b);
+});
 }
-function selectPlayer(i){if(state.over||state.turn!=="player"||state.player[i].hp<=0)return;state.selected=i;state.target=null;msg("تم اختيار "+state.player[i].name+" — اختر بطاقة من الخصم.");render();}
-function selectTarget(i){if(state.selected===null||state.over||state.turn!=="player")return;state.target=i;attack(state.selected,i);}
+function selectPlayer(i){
+if(state.over||state.turn!=="player"||state.player[i].hp<=0)return;
+state.selected=i;
+state.target=null;
+msg("تم اختيار "+state.player[i].name+" — اختر بطاقة من الخصم.");
+render();
+}
+function selectTarget(i){
+if(state.selected===null||state.over||state.turn!=="player")return;
+state.target=i;
+attack(state.selected,i);
+}
 function attack(pi,ei){
-const p=state.player[pi],e=state.enemy[ei];if(!p||!e||p.hp<=0||e.hp<=0)return;
-if(state.energy< p.cost){msg("تحتاج إلى طاقة أكثر.");return;}
+const p=state.player[pi],e=state.enemy[ei];
+if(!p||!e||p.hp<=0||e.hp<=0)return;
+if(state.energy<p.cost){msg("تحتاج إلى طاقة أكثر.");return;}
 state.energy-=p.cost;
-if(p.id==="healer"){const ally=alive(state.player).sort((a,b)=>a.hp-b.hp)[0];ally.hp=Math.min(ally.max,ally.hp+6);msg(p.name+" عالج "+ally.name+" بمقدار 6.");}
-else{
-let dmg=p.atk+(state.combo>=2?2:0);e.hp=Math.max(0,e.hp-dmg);msg(p.name+" هاجم "+e.name+" وسبب "+dmg+" ضرر.");
-if(p.id==="knight"){p.hp=Math.max(0,p.hp-2);msg(p.name+" هاجم بقوة لكنه تلقى 2 ضرر من الارتداد.");}
-if(p.id==="mage"){p.hp=Math.max(0,p.hp-1);}
+if(p.id==="healer"){
+const ally=alive(state.player).sort((a,b)=>a.hp-b.hp)[0];
+if(ally)ally.hp=Math.min(ally.max,ally.hp+6);
+msg(p.name+" عالج "+(ally?ally.name:"حليفًا")+" بمقدار 6.");
+}else{
+let dmg=p.atk+(state.combo>=2?2:0);
+e.hp=Math.max(0,e.hp-dmg);
+msg(p.name+" هاجم "+e.name+" وسبب "+dmg+" ضرر.");
+if(p.id==="knight")p.hp=Math.max(0,p.hp-2);
+if(p.id==="mage")p.hp=Math.max(0,p.hp-1);
 if(p.id==="rogue"&&e.hp<=0)state.energy=Math.min(5,state.energy+1);
-if(e.hp<=0)state.combo++;
-else state.combo=0;
+if(e.hp<=0)state.combo++;else state.combo=0;
 }
-state.selected=null;state.target=null;checkWin();render();
+state.selected=null;
+state.target=null;
+checkWin();
+render();
 }
 function endTurn(){
 if(state.over||state.turn!=="player")return;
-state.turn="enemy";state.selected=null;state.target=null;render();setTimeout(enemyTurn,350);
+state.turn="enemy";
+state.selected=null;
+state.target=null;
+render();
+setTimeout(enemyTurn,350);
 }
 function enemyTurn(){
 if(state.over)return;
-const foes=alive(state.player);
-const attackers=alive(state.enemy);
-attackers.forEach((e,idx)=>{
+const foes=alive(state.player),attackers=alive(state.enemy);
+attackers.forEach(e=>{
 if(e.stunned>0){e.stunned--;return;}
-const target=foes[Math.floor(Math.random()*foes.length)];if(!target||target.hp<=0)return;
+const target=foes[Math.floor(Math.random()*foes.length)];
+if(!target||target.hp<=0)return;
 let dmg=e.atk;
 if(target.id==="guard"&&!target.guarded){dmg=Math.max(0,dmg-5);target.guarded=true;}
 target.hp=Math.max(0,target.hp-dmg);
 });
 if(alive(state.player).length===0){finish(false);return;}
 state.player.forEach(u=>u.guarded=false);
-state.round++;state.energy=Math.min(5,state.energy+2);dealHand();state.turn="player";state.player.forEach(u=>u.guarded=false);
-msg("انتهى دور الخصم. طاقتك استعادت نقطتين.");render();
+state.round++;
+state.energy=Math.min(5,state.energy+2);
+dealHand();
+state.turn="player";
+msg("انتهى دور الخصم. طاقتك استعادت نقطتين.");
+render();
 }
-function checkWin(){if(alive(state.enemy).length===0)finish(true);else if(alive(state.player).length===0)finish(false);}
-function finish(win){state.over=true;render();document.getElementById("resultIcon").textContent=win?"🏆":"💥";document.getElementById("resultTitle").textContent=win?"انتصار!":"هُزمت";document.getElementById("resultText").textContent=win?"هزمت الفريق المنافس بخمس بطاقات لكل فريق.":"تم القضاء على فريقك. جرّب اختيار الأهداف وترتيب القدرات بشكل مختلف.";document.getElementById("overlay").classList.add("show");}
-document.getElementById("endTurn").onclick=endTurn;document.getElementById("reset").onclick=newState;document.getElementById("playAgain").onclick=()=>{document.getElementById("overlay").classList.remove("show");newState();};
+function checkWin(){
+if(alive(state.enemy).length===0)finish(true);
+else if(alive(state.player).length===0)finish(false);
+}
+function finish(win){
+state.over=true;
+render();
+document.getElementById("resultIcon").textContent=win?"🏆":"💥";
+document.getElementById("resultTitle").textContent=win?"انتصار!":"هُزمت";
+document.getElementById("resultText").textContent=win?"هزمت الفريق المنافس بخمس بطاقات لكل فريق.":"تم القضاء على فريقك. جرّب اختيار الأهداف وترتيب القدرات بشكل مختلف.";
+document.getElementById("overlay").classList.add("show");
+}
+document.getElementById("endTurn").onclick=endTurn;
+document.getElementById("reset").onclick=newState;
+document.getElementById("playAgain").onclick=()=>{document.getElementById("overlay").classList.remove("show");newState();};
 newState();
 </script>
 </body>
