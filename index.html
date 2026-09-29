@@ -1,132 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#07111f">
-<title>دفء — ملجأ الشتاء</title>
+<meta name="theme-color" content="#0b1020">
+<title>أساطير البطاقات</title>
 <style>
-:root{--bg:#07111f;--panel:#101d2e;--panel2:#16263a;--line:#294057;--text:#edf5ff;--muted:#9db0c5;--good:#31d17c;--warn:#f5b83d;--bad:#ef5b64;--ice:#55c7f5}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:radial-gradient(circle at 50% -10%,#19344e,#07111f 48%);color:var(--text);font-family:Tahoma,system-ui,sans-serif;min-height:100vh}button{font:inherit}
-#app{width:min(500px,100%);margin:auto;padding:10px 10px 20px}header,.panel{background:rgba(16,29,46,.94);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 30px #0005}header{padding:11px 13px;display:flex;align-items:center;justify-content:space-between}h1{font-size:18px;margin:0}.chapter{font-size:11px;color:var(--muted)}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.stat{padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;text-align:center;font-size:11px}.stat strong{display:block;font-size:13px;margin-bottom:5px}.bar{height:7px;background:#07111f;border-radius:99px;overflow:hidden}.fill{height:100%;transition:width .45s}
-#scene{height:350px;position:relative;overflow:hidden;border:1px solid #36506a;border-radius:18px;background:linear-gradient(#152a40 0 45%,#0d1722 45%);box-shadow:inset 0 0 60px #0008}
-#scene:before{content:"";position:absolute;left:7%;right:7%;bottom:17%;height:48%;border:3px solid #405264;border-bottom-width:7px;background:linear-gradient(135deg,#263544,#172330);clip-path:polygon(4% 18%,50% 0,96% 18%,96% 100%,4% 100%);opacity:.95}
-.part{position:absolute;z-index:2;font-size:12px;background:#07111dcc;padding:5px 7px;border:1px solid #53677b;border-radius:8px;transition:.4s}.roof{top:20%;left:50%;transform:translateX(-50%)}.window{top:50%;right:13%}.wall{top:63%;left:11%}.chimney{top:28%;left:23%}.fixed{opacity:.25;filter:grayscale(1)}
-#woman{position:absolute;z-index:3;left:50%;top:53%;transform:translate(-50%,-50%);font-size:72px;filter:drop-shadow(0 10px 15px #000);transition:.5s}
-#weather{position:absolute;inset:8px 10px auto;z-index:4;display:flex;justify-content:space-between;font-size:11px;color:#d7e7f5}#dialog{position:absolute;z-index:5;left:0;right:0;bottom:0;padding:42px 13px 12px;background:linear-gradient(transparent,#030913f5 52%);font-size:13px;line-height:1.65}
-.snow{position:absolute;z-index:4;top:-20px;color:#fff;opacity:.7;animation:fall linear forwards;pointer-events:none}@keyframes fall{to{transform:translateY(390px) translateX(25px)}}
-.panel{padding:9px;margin-top:8px}.title{font-size:11px;color:var(--muted);margin-bottom:6px}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{font-size:11px;padding:5px 8px;border-radius:20px;background:#07111f;border:1px solid var(--line)}
-#choices{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:13px;padding:11px 8px;font-size:12px;min-height:58px}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.4}.btn small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.primary{border-color:#3b6f91}
-#log{font-size:11px;line-height:1.55;color:#c7d5e4;max-height:90px;overflow:auto}#end{position:fixed;inset:0;background:#02070def;display:none;z-index:20;align-items:center;justify-content:center;padding:20px}.endbox{width:min(430px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center}.endbox h2{margin:0 0 8px}
+:root{--bg:#080b16;--panel:#11172a;--panel2:#171e35;--gold:#f5c76b;--text:#f5f7ff;--muted:#9aa5bf;--red:#ef6b73;--blue:#5da9ff;--green:#5fd39a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:radial-gradient(circle at 50% -10%,#27345f 0,#0d1224 42%,#070a13 100%);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;min-height:100vh}
+button{font:inherit;color:inherit;border:0;cursor:pointer}
+.app{width:min(100%,520px);min-height:100vh;margin:auto;padding:14px 12px 24px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:6px 4px}
+.logo{font-size:24px;font-weight:900;letter-spacing:-1px}.logo span{color:var(--gold)}
+.round{font-size:12px;color:var(--muted);background:#ffffff08;padding:7px 10px;border-radius:999px;border:1px solid #ffffff10}
+.arena{background:linear-gradient(180deg,#141b31,#0e1425);border:1px solid #ffffff12;border-radius:24px;padding:12px;box-shadow:0 18px 50px #0007}
+.fighter{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center}
+.avatar{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:27px;background:linear-gradient(145deg,#26355d,#121a30);border:1px solid #ffffff18}
+.name{font-weight:800;font-size:14px}.bar{height:8px;background:#070a12;border-radius:9px;overflow:hidden;margin-top:6px}.hp{height:100%;background:linear-gradient(90deg,#ef5967,#ff9b78);width:100%;transition:width .3s}.player .hp{background:linear-gradient(90deg,#4bb8ff,#62e2a1)}
+.hptext{font-size:12px;color:var(--muted);white-space:nowrap}.vs{text-align:center;color:#6f7a95;font-weight:900;font-size:12px;padding:5px}
+.status{display:flex;justify-content:space-between;gap:8px;margin-top:9px}.pill{flex:1;background:#ffffff08;border:1px solid #ffffff0d;border-radius:12px;padding:8px;text-align:center;font-size:12px;color:var(--muted)}.pill b{display:block;color:var(--text);font-size:15px;margin-top:2px}
+.message{min-height:42px;display:grid;place-items:center;text-align:center;color:#dce3f5;font-size:13px;padding:4px}
+.handTitle{display:flex;justify-content:space-between;align-items:center;padding:3px 4px}.handTitle b{font-size:16px}.handTitle span{font-size:12px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.card{position:relative;text-align:right;background:linear-gradient(160deg,#1b2440,#10172b);border:1px solid #ffffff18;border-radius:18px;padding:10px;min-height:154px;box-shadow:0 8px 18px #0004;transition:transform .15s,border-color .15s,opacity .15s}
+.card:not(:disabled):active{transform:scale(.97)}.card:disabled{opacity:.45;cursor:default}.card:hover:not(:disabled){border-color:#f5c76b66}
+.card .icon{font-size:30px;line-height:1}.tag{position:absolute;top:9px;left:9px;font-size:10px;color:var(--gold);background:#f5c76b12;padding:4px 6px;border-radius:8px}
+.card h3{margin:8px 0 4px;font-size:14px}.desc{font-size:11px;color:var(--muted);line-height:1.45;min-height:32px}.cost{display:inline-flex;margin-top:7px;background:#5da9ff18;color:#8bc5ff;padding:4px 7px;border-radius:8px;font-size:10px}
+.controls{display:flex;gap:8px}.mainbtn{flex:1;padding:13px;border-radius:15px;font-weight:900;background:linear-gradient(135deg,#e9b95e,#f5d27e);color:#17120a;box-shadow:0 8px 22px #e4b85d22}.mainbtn:disabled{opacity:.4}.ghost{padding:13px 16px;border-radius:15px;background:#ffffff09;border:1px solid #ffffff12}
+.overlay{position:fixed;inset:0;background:#050711dd;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}.overlay.show{display:flex}.modal{width:min(100%,430px);background:linear-gradient(160deg,#1a2340,#0e1426);border:1px solid #ffffff18;border-radius:26px;padding:24px;text-align:center;box-shadow:0 30px 90px #000b}.modal .big{font-size:62px}.modal h1{margin:8px 0;font-size:28px}.modal p{color:var(--muted);line-height:1.6;font-size:13px}.small{font-size:11px;color:#7f8aa5;text-align:center;margin-top:2px}
+@media(min-width:480px){.cards{grid-template-columns:repeat(4,1fr)}.card{min-height:190px}.card .icon{font-size:34px}.card h3{font-size:13px}.desc{font-size:10px}}
 </style>
 </head>
 <body>
-<div id="app">
-<header><h1>🏚️ دفء</h1><span class="chapter" id="chapter">الفصل 1 · الوصول</span></header>
-<div class="stats">
-<div class="stat">❤️ <strong><span id="hp">65</span>%</strong><div class="bar"><div id="hpf" class="fill" style="background:var(--bad)"></div></div></div>
-<div class="stat">⏳ <strong><span id="time">120</span>ث</strong><div class="bar"><div id="tmf" class="fill" style="background:var(--warn)"></div></div></div>
-<div class="stat">🥶 <strong id="cold">قارس</strong><div class="bar"><div id="clf" class="fill" style="background:var(--ice)"></div></div></div>
+<div class="app">
+  <div class="top"><div class="logo">أساطير <span>البطاقات</span></div><div class="round" id="round">الجولة 1</div></div>
+  <section class="arena">
+    <div class="fighter enemy"><div class="avatar">🐉</div><div><div class="name">حارس الظلال</div><div class="bar"><div class="hp" id="enemyHp"></div></div></div><div class="hptext" id="enemyHpText">30 / 30</div></div>
+    <div class="vs">VS</div>
+    <div class="fighter player"><div class="avatar">⚔️</div><div><div class="name">أنت</div><div class="bar"><div class="hp" id="playerHp"></div></div></div><div class="hptext" id="playerHpText">30 / 30</div></div>
+    <div class="status"><div class="pill">طاقة<b id="energy">3</b></div><div class="pill">بطاقات<b id="deck">12</b></div><div class="pill">الدرع<b id="shield">0</b></div></div>
+    <div class="message" id="message">اختر بطاقة لبدء المعركة.</div>
+  </section>
+  <div class="handTitle"><b>يدك</b><span>الطاقة تُستعاد كل جولة</span></div>
+  <section class="cards" id="cards"></section>
+  <div class="controls"><button class="mainbtn" id="endTurn">إنهاء الدور</button><button class="ghost" id="reset">↻</button></div>
+  <div class="small">لعبة بطاقات خفيفة — تعمل مباشرة من GitHub Pages</div>
 </div>
-<div id="scene">
-<div id="weather"><span>-12°C</span><span>🌬️ رياح قوية</span></div>
-<div id="roof" class="part roof">🕳️ السقف مخلوع</div><div id="window" class="part window">🪟 الشباك مفتوح</div><div id="wall" class="part wall">🧱 الحائط مكسور</div><div id="chimney" class="part chimney">💨 المدخنة مسدودة</div>
-<div id="woman">🥶</div><div id="dialog">البرد قارس. وجدتِ خرابة قديمة، لكن قبل أن تفعلي أي شيء عليكِ معرفة ما يمكن إنقاذه.</div>
-</div>
-<div class="panel"><div class="title">🎒 الحقيبة</div><div class="chips" id="inventory"></div></div>
-<div class="panel"><div class="title">🧰 التصنيع</div><div id="crafting" class="chips"></div></div>
-<div id="choices"></div>
-<div class="panel"><div id="log">📜 وصلتِ إلى الخرابة. افحصي المكان وابني خطة قبل إهدار الوقت.</div></div>
-</div>
-<div id="end"><div class="endbox"><h2 id="endTitle"></h2><p id="endText"></p><button class="btn primary" onclick="newGame()">🔄 بداية جديدة</button></div></div>
+<div class="overlay" id="overlay"><div class="modal"><div class="big" id="resultIcon">🏆</div><h1 id="resultTitle">انتصرت!</h1><p id="resultText"></p><button class="mainbtn" id="playAgain">العب مرة أخرى</button></div></div>
 <script>
-const KEY="daf2_v2";
-const BASE={hp:65,time:120,cold:80,chapter:1,inv:{خشب:1,فحم:1,"زجاج مكسور":1,طوب:0,طين:1,مسمار:2,ورق:1,قماش:0},done:{chimney:false,roof:false,window:false,wall:false},searched:0,log:[]};
-const recipes={"لوح خشب":{need:{خشب:1,مسمار:1},give:{"لوح خشب":1}},"زجاج صالح":{need:{"زجاج مكسور":1,طين:1},give:{زجاج:1}}};
-let state=load();let ended=false;
-function $(id){return document.getElementById(id)}
-function clone(o){return JSON.parse(JSON.stringify(o))}
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x?x:clone(BASE)}catch(e){return clone(BASE)}}
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function add(item,n){state.inv[item]=(state.inv[item]||0)+(n||1)}
-function spend(item,n){n=n||1;if((state.inv[item]||0)<n)return false;state.inv[item]-=n;return true}
-function change(hp,time,cold){state.hp=Math.max(0,Math.min(100,state.hp+(hp||0)));state.time=Math.max(0,state.time+(time||0));state.cold=Math.max(0,Math.min(100,state.cold+(cold||0)))}
-function log(t){state.log.unshift(t);state.log=state.log.slice(0,6);$("log").innerHTML="📜 "+state.log.join("<br>📜 ")}
-function say(t){$("dialog").textContent=t;log(t);try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="ar";u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
-function evaluate(q,msg){
-if(q>=100){change(20,18,-35);say(msg+" — تقييم 100%: ممتاز! الصحة والوقت تحسنا.");}
-else if(q>=70){change(8,6,-18);say(msg+" — تقييم "+q+"%: جيد.");}
-else if(q>=50){say(msg+" — تقييم "+q+"%: مقبول، الوضع تقريبًا كما هو.");}
-else{change(-10,-5,8);say(msg+" — تقييم "+q+"%: سيئ، حالتها تتدهور أسرع.");}
-}
-function repair(type){
-if(ended)return;if(state.done[type]){say("هذا الجزء تم إصلاحه بالفعل.");return}
-let q=0,msg="";
-if(type==="chimney"){
-if(spend("فحم نظيف")&&spend("لوح خشب")){q=100;msg="نظفتِ المدخنة وثبّتِ الجزء المتضرر وجهزتِ التدفئة."}
-else if((state.inv.فحم||0)>0&&(state.inv.خشب||0)>0){spend("فحم");spend("خشب");q=80;msg="أصلحتِ المدخنة بمواد بسيطة، لكن التدفئة ليست مثالية."}
-else if(spend("فحم")){q=70;msg="أشعلتِ نارًا مؤقتة، لكنها لا تستمر طويلًا."}
-else{q=30;msg="حاولتِ تشغيل المدفأة دون مواد مناسبة."}
-if(q>=70)state.done.chimney=true;
-}
-if(type==="roof"){
-if(state.done.chimney&&(state.inv["لوح خشب"]||0)>=2){spend("لوح خشب",2);q=100;msg="ثبّتِ الأجزاء المتضررة من السقف بعد تجهيز التدفئة."}
-else if((state.inv.خشب||0)>=1){spend("خشب");q=55;msg="وضعتِ قطعة خشب كحل مؤقت للسقف."}
-else{q=35;msg="حاولتِ إصلاح السقف دون مادة مناسبة."}
-if(q>=55)state.done.roof=true;
-}
-if(type==="window"){
-if(spend("زجاج")&&spend("لوح خشب")){q=100;msg="ركبتِ الزجاج وثبّتِ الإطار."}
-else if(spend("قماش")){q=70;msg="غطيتِ الشباك بالقماش لتقليل دخول الهواء."}
-else if(spend("خشب")){q=50;msg="وضعتِ لوحًا على الفتحة، لكنه لا يعزل جيدًا."}
-else{q=30;msg="لم تجدي مادة مناسبة للشباك."}
-if(q>=50)state.done.window=true;
-}
-if(type==="wall"){
-if((state.inv.طوب||0)>=2&&state.inv.طين){spend("طوب",2);spend("طين");q=100;msg="رممتِ الجزء المكسور بالطوب والطين."}
-else if(spend("طوب")){q=70;msg="أغلقتِ جزءًا من الحائط بالطوب."}
-else{q=35;msg="حاولتِ سد الحائط دون مواد كافية."}
-if(q>=70)state.done.wall=true;
-}
-change(0,-3,0);evaluate(q,msg);render();check();
-}
-function searchArea(){
-if(ended)return;if(state.searched>=5){say("فتشتِ المكان بما يكفي. لم يبقَ شيء واضح للعثور عليه.");return}
-const pool=["خشب","مسمار","طوب","قماش","ورق","زجاج مكسور","طين"];const item=pool[Math.floor(Math.random()*pool.length)];add(item);state.searched++;change(-1,-5,2);say("فتشتِ تحت الركام ووجدتِ: "+item+".");render();check()
-}
-function craft(name){
-const r=recipes[name];if(!r)return;for(const k in r.need)if((state.inv[k]||0)<r.need[k]){say("المواد غير كافية لصناعة "+name+".");return}
-for(const k in r.need)spend(k,r.need[k]);for(const k in r.give)add(k,r.give[k]);change(0,-2,0);say("صنعتِ "+name+" بنجاح.");render()
-}
-function rest(){
-if(ended)return;if(state.done.chimney){change(7,-2,-10);say("استرحتِ قرب التدفئة. حالتها تحسنت قليلًا.");}
-else{change(-5,-2,5);say("لا توجد تدفئة بعد. الراحة في هذا البرد أضرت بها.");}render();check()
-}
-function inspect(){
-if(ended)return;change(0,-2,0);let missing=[];if(!state.done.chimney)missing.push("المدخنة");if(!state.done.roof)missing.push("السقف");if(!state.done.window)missing.push("الشباك");if(!state.done.wall)missing.push("الحائط");say("فحصتِ المكان. الأجزاء التي تحتاج عملاً: "+missing.join("، ")+"."+(state.done.chimney?" التدفئة أصبحت ممكنة.":" المدفأة ما زالت غير جاهزة."));render();check()
-}
-function actions(){
-const b=[["🔎 فحص الخرابة","اعرفي الأولويات",inspect],["🔍 البحث عن أدوات","يستهلك 5 ثوانٍ",searchArea],["🔥 المدخنة","التدفئة مهمة",function(){repair("chimney")}],["🏚️ السقف","منع دخول الثلج",function(){repair("roof")}],["🪟 الشباك","تقليل الهواء",function(){repair("window")}],["🧱 الحائط","تقليل تسرب البرد",function(){repair("wall")}],["🫖 راحة","أفضل بعد تشغيل التدفئة",rest]];
-$("choices").innerHTML=b.map(function(x,i){return '<button class="btn '+(i===2&&!state.done.chimney?"primary":"")+'" onclick="_actions['+i+']()">'+x[0]+'<small>'+x[1]+"</small></button>"}).join("");window._actions=b.map(function(x){return x[2]})
-}
+const baseCards=[
+ {id:"strike",name:"ضربة حادة",icon:"⚔️",type:"هجوم",cost:1,value:7,desc:"تسبب 7 ضرر للخصم."},
+ {id:"heavy",name:"ضربة ثقيلة",icon:"🪓",type:"هجوم",cost:2,value:13,desc:"تسبب 13 ضرر."},
+ {id:"shield",name:"درع فولاذي",icon:"🛡️",type:"دفاع",cost:1,value:8,desc:"تحصل على 8 نقاط درع."},
+ {id:"heal",name:"نبض الحياة",icon:"💚",type:"دعم",cost:2,value:7,desc:"تستعيد 7 نقاط صحة."},
+ {id:"fire",name:"لهيب",icon:"🔥",type:"سحر",cost:3,value:18,desc:"هجوم قوي يسبب 18 ضرر."},
+ {id:"spark",name:"شرارة",icon:"⚡",type:"سحر",cost:1,value:5,desc:"5 ضرر وتستعيد 1 طاقة."}
+];
+let state;
+function newState(){state={player:30,enemy:30,shield:0,energy:3,round:1,deck:12,hand:[],over:false};for(let i=0;i<4;i++)draw();render();}
+function draw(){if(state.deck<=0)return;state.hand.push({...baseCards[Math.floor(Math.random()*baseCards.length)]});state.deck--;}
+function msg(t){document.getElementById("message").textContent=t;}
 function render(){
-$("hp").textContent=Math.round(state.hp);$("hpf").style.width=state.hp+"%";$("time").textContent=Math.ceil(state.time);$("tmf").style.width=Math.min(100,state.time/120*100)+"%";$("cold").textContent=state.cold<25?"دافئ":state.cold<55?"بارد":state.cold<75?"شديد البرودة":"قارس";$("clf").style.width=state.cold+"%";
-$("chapter").textContent=state.chapter===1?"الفصل 1 · الوصول":state.chapter===2?"الفصل 2 · العاصفة":"الفصل 3 · النجاة";$("woman").textContent=state.cold>70?"🥶":state.cold>45?"😰":state.cold>25?"🙂":"🧣🔥";
-["roof","window","wall","chimney"].forEach(function(x){$(x).classList.toggle("fixed",state.done[x])});
-$("inventory").innerHTML=Object.entries(state.inv).filter(function(a){return a[1]>0}).map(function(a){return '<span class="chip">'+a[1]+"× "+a[0]+"</span>"}).join("")||'<span class="chip">فارغة</span>';
-$("crafting").innerHTML=Object.keys(recipes).map(function(k){return '<button class="btn" style="min-height:45px;padding:7px" onclick="craft(\''+k+'\')">🛠️ '+k+"</button>"}).join("");actions();save()
+ document.getElementById("playerHp").style.width=Math.max(0,state.player/30*100)+"%";
+ document.getElementById("enemyHp").style.width=Math.max(0,state.enemy/30*100)+"%";
+ document.getElementById("playerHpText").textContent=state.player+" / 30";
+ document.getElementById("enemyHpText").textContent=state.enemy+" / 30";
+ document.getElementById("energy").textContent=state.energy;
+ document.getElementById("deck").textContent=state.deck;
+ document.getElementById("shield").textContent=state.shield;
+ document.getElementById("round").textContent="الجولة "+state.round;
+ const wrap=document.getElementById("cards");wrap.innerHTML="";
+ state.hand.forEach((c,i)=>{
+  const b=document.createElement("button");b.className="card";b.disabled=state.over||c.cost>state.energy;
+  b.innerHTML='<span class="tag">'+c.type+'</span><div class="icon">'+c.icon+'</div><h3>'+c.name+'</h3><div class="desc">'+c.desc+'</div><span class="cost">⚡ '+c.cost+'</span>';
+  b.onclick=()=>playCard(i);wrap.appendChild(b);
+ });
+ document.getElementById("endTurn").disabled=state.over;
 }
-function check(){
-if(ended)return;if(Object.values(state.done).every(Boolean)){state.chapter=3;end("نجاة ❤️","نجحتِ في تحويل الخرابة إلى مأوى دافئ. اختياراتك وترتيب إصلاحاتك أنقذا الليلة.");return}
-if(state.time<=0||state.hp<=0){end("انتهت الليلة","لم يعد لديكِ وقت أو طاقة كافية. حاولي في المرة القادمة جمع المواد وفحص المكان قبل القرارات المهمة.");return}
-if(state.time<=60&&state.chapter===1){state.chapter=2;say("العاصفة اشتدت! الثلج يدخل من الفتحات. الآن كل قرار له ثمن.")}
+function playCard(i){
+ if(state.over)return;const c=state.hand[i];if(c.cost>state.energy)return;
+ state.energy-=c.cost;
+ if(c.id==="strike"||c.id==="heavy"||c.id==="fire"){state.enemy=Math.max(0,state.enemy-c.value);msg("هجوم ناجح! خسِر الخصم "+c.value+" صحة.");}
+ if(c.id==="shield"){state.shield+=c.value;msg("رفعت دفاعك بمقدار "+c.value+".");}
+ if(c.id==="heal"){state.player=Math.min(30,state.player+c.value);msg("استعدت "+c.value+" من الصحة.");}
+ if(c.id==="spark"){state.enemy=Math.max(0,state.enemy-c.value);state.energy=Math.min(3,state.energy+1);msg("الشرارة أصابت الخصم واستعادت طاقة.");}
+ state.hand.splice(i,1);draw();check();render();
 }
-function end(title,text){ended=true;clearInterval(tick);$("endTitle").textContent=title;$("endText").textContent=text;$("end").style.display="flex";save()}
-function newGame(){localStorage.removeItem(KEY);location.reload()}
-function snow(){const e=document.createElement("span");e.className="snow";e.textContent="❄";e.style.left=Math.random()*100+"%";e.style.animationDuration=(2+Math.random()*3)+"s";e.style.fontSize=(9+Math.random()*10)+"px";$("scene").appendChild(e);setTimeout(function(){e.remove()},5500)}
-const tick=setInterval(function(){if(ended)return;change(state.done.chimney?(state.done.roof?-.04:-.12):-.55,-1,state.done.chimney?.05:.3);check();render()},1000);
-setInterval(snow,220);render();check();
+function enemyTurn(){
+ if(state.over)return;
+ let dmg=5+Math.floor(Math.random()*6);
+ if(state.shield>0){const blocked=Math.min(state.shield,dmg);state.shield-=blocked;dmg-=blocked;}
+ state.player=Math.max(0,state.player-dmg);
+ if(state.player<=0){finish(false);return;}
+ state.round++;state.energy=3;draw();draw();msg("حارس الظلال هاجمك. دورك الآن.");
+ render();
+}
+function check(){if(state.enemy<=0)finish(true);}
+function finish(win){
+ state.over=true;render();
+ document.getElementById("resultIcon").textContent=win?"🏆":"💥";
+ document.getElementById("resultTitle").textContent=win?"انتصار!":"انتهت المعركة";
+ document.getElementById("resultText").textContent=win?"هزمت حارس الظلال باستخدام بطاقاتك.":"استنفدت صحتك. جرّب بناء يد مختلفة واستخدام الدرع في الوقت المناسب.";
+ document.getElementById("overlay").classList.add("show");
+}
+document.getElementById("endTurn").onclick=enemyTurn;
+document.getElementById("reset").onclick=newState;
+document.getElementById("playAgain").onclick=()=>{document.getElementById("overlay").classList.remove("show");newState();};
+newState();
 </script>
 </body>
 </html>
