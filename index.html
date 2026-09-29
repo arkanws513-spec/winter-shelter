@@ -158,7 +158,12 @@ function shuffle(arr){
   for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
 }
-let matchPlayerWins=0,matchEnemyWins=0,battleNumber=0,matchOver=false,battleEnding=false;\nfunction startMatch(){matchPlayerWins=0;matchEnemyWins=0;battleNumber=0;matchOver=false;battleEnding=false;newState();}\nfunction newState(){
+let matchPlayerWins=0,matchEnemyWins=0,battleNumber=0,matchOver=false,battleEnding=false;
+function startMatch(){matchPlayerWins=0;matchEnemyWins=0;battleNumber=0;matchOver=false;battleEnding=false;newState();}
+function updateMatchHud(){
+  const el=document.getElementById("matchScore");
+  if(el)el.textContent="المباراة: "+matchPlayerWins+" — "+matchEnemyWins;
+}\nfunction newState(){
   const deck=shuffle(cardPool);
   discover(deck.slice(0,10).map(x=>x.id));
   state={
@@ -215,7 +220,7 @@ function playCard(pi,ei){
   profile.plays++;saveProfile();
   let dmg=p.atk;
   if(p.id==="c14") dmg=p.atk+(state.round%2===0?3:-1);
-  if(p.id==="c19" && alive(state.player).some(x=>x.hp<x.max*.45))dmg+=2;
+  if(p.id==="c19" && alive(state.player).some(x=>x.hp<x.max*.45))dmg+=2;\n  if(p.id==="c06" && alive(state.enemy).length===1)dmg+=2;
   if(p.id==="c23") dmg+=(e.hp<=Math.min(...alive(state.enemy).map(x=>x.hp))?2:0);\n  if(p.id==="c06" && alive(state.enemy).length===1)dmg+=2;
   if(p.id==="c30") dmg+=Math.max(0,5-alive(state.player).length);
   if(state.combo>=2)dmg+=2;
@@ -228,7 +233,7 @@ function playCard(pi,ei){
     }
   }
   if(p.id==="c03"||p.id==="c16"){p.hp=Math.min(p.max,p.hp+(p.id==="c16"?4:3));}
-  if(p.id==="c18"){e.atkDebuff=2;}\n  if(p.id==="c13")state.energy=Math.min(5,state.energy+1);
+  if(p.id==="c18"){e.atkDebuff=2;}\n  if(p.id==="c13")state.energy=Math.min(5,state.energy+1);\n  if(p.id==="c13")state.energy=Math.min(5,state.energy+1);
   if(p.id==="c25"||p.id==="c08"||p.id==="c29"){e.skip=1;}
   if(p.id==="c01"){p.shield=5;}
   if(p.id==="c07"){p.shield=4;}
@@ -280,22 +285,41 @@ function enemyTurn(){
   msg("انتهى دور الخصم. بطاقاتك بقيت كما هي، والطاقة استعادت نقطتين.");
   render();
 }
-function checkWin(){
-  if(alive(state.enemy).length===0)finish(true);
-  else if(alive(state.player).length===0)finish(false);
-}
-function finish(win){
-  if(state.over)return;
-  state.over=true;
+function finishMatch(win){
+  if(matchOver===false)return;
   profile.matches++;
   if(win){profile.wins++;profile.questWins++;addXP(50);}
   else {profile.losses++;addXP(20);}
   saveProfile();updateHome();render();
   document.getElementById("resultIcon").textContent=win?"🏆":"💫";
-  document.getElementById("resultTitle").textContent=win?"انتصار!":"انتهت المباراة";
-  document.getElementById("resultText").textContent=win?"فزت باستخدام 5 بطاقات من مجموعة 30 بطاقة.":"انتهت بطاقات فريقك. جرّب توزيعًا عشوائيًا جديدًا.";
+  document.getElementById("resultTitle").textContent=win?"فوز بالمباراة!":"خسارة المباراة";
+  document.getElementById("resultText").textContent="النتيجة النهائية "+matchPlayerWins+" — "+matchEnemyWins+" بعد "+battleNumber+" معارك.";
+  document.getElementById("playAgain").textContent="مباراة جديدة";
   document.getElementById("overlay").classList.add("show");
 }
+function finishBattle(win){
+  if(state.over||battleEnding||matchOver)return;
+  battleEnding=true;state.over=true;
+  if(win)matchPlayerWins++;else matchEnemyWins++;
+  updateMatchHud();render();
+  if(matchPlayerWins>=2||matchEnemyWins>=2){
+    matchOver=true;
+    setTimeout(()=>finishMatch(matchPlayerWins>=2),500);
+    return;
+  }
+  setTimeout(()=>{
+    document.getElementById("resultIcon").textContent=win?"⚔️":"🛡️";
+    document.getElementById("resultTitle").textContent="انتهت المعركة "+battleNumber;
+    document.getElementById("resultText").textContent="النتيجة "+matchPlayerWins+" — "+matchEnemyWins+(matchPlayerWins===1&&matchEnemyWins===1?" · المعركة الثالثة حاسمة!":" · استعد للمعركة التالية.");
+    document.getElementById("playAgain").textContent="المعركة التالية";
+    document.getElementById("overlay").classList.add("show");
+  },450);
+}
+function checkWin(){
+  if(alive(state.enemy).length===0)finishBattle(true);
+  else if(alive(state.player).length===0)finishBattle(false);
+}
+function finish(win){finishBattle(win);}
 document.getElementById("endTurn").onclick=endTurn;
 document.getElementById("reset").onclick=newState;
 document.getElementById("playAgain").onclick=()=>{document.getElementById("overlay").classList.remove("show");showScreen("battleScreen");if(matchOver)startMatch();else newState();};
