@@ -68,7 +68,7 @@ const cardPool=[
 {id:"c24",name:"نهر الحياة",icon:"💧",hp:29,max:29,atk:3,cost:2,role:"شفاء",desc:"يعالج أضعف حليف 7 نقاط.",side:"تدفق"},
 {id:"c25",name:"حارس الثلج",icon:"❄️",hp:31,max:31,atk:4,cost:1,role:"تحكم",desc:"يخفض سرعة الخصم التالي.",side:"تجميد"},
 {id:"c26",name:"شعلة النجوم",icon:"✨",hp:18,max:18,atk:9,cost:3,role:"أسطوري",desc:"ضرر ضخم لكن كلفته عالية.",side:"انطفاء"},
-{id:"c27",name:"فراشة الضوء",icon:"🦋",hp:16,max:16,atk:6,cost:1,role:"سرعة",desc:"بعد اللعب تستعيد نقطة طاقة.",side:"خفة"},
+{id:"c27",name:"فراشة الضوء",icon:"🦋",hp:16,max:16,atk:6,cost:1,role:"سرعة",desc:"تعيد نقطة طاقة مرة واحدة فقط في كل دور.",side:"خفة"},
 {id:"c28",name:"شجرة الحكمة",icon:"🌲",hp:33,max:33,atk:3,cost:2,role:"حكمة",desc:"تعطي أضعف حليف حماية مؤقتة.",side:"جذور"},
 {id:"c29",name:"بوابة الزمن",icon:"🌀",hp:20,max:20,atk:6,cost:2,role:"زمن",desc:"تؤخر رد الخصم في الدور التالي.",side:"اختلال"},
 {id:"c30",name:"قلب النجمة",icon:"💫",hp:25,max:25,atk:7,cost:2,role:"أسطوري",desc:"تزداد قوتها قليلًا مع كل حليف ساقط.",side:"ثمن القوة"}
@@ -156,7 +156,7 @@ function playCard(pi,ei){
   if(p.id==="c15"&&p.hp<p.max*.45){p.shield=7;}
   if(p.id==="c17"){p.skip=0;}
   if(p.id==="c20"&&Math.random()<.5)state.energy=Math.min(5,state.energy+1);
-  if(p.id==="c27")state.energy=Math.min(5,state.energy+1);
+  if(p.id==="c27"&&!p.used){state.energy=Math.min(5,state.energy+1);p.used=true;}
 
   e.hp=Math.max(0,e.hp-dmg);
 
