@@ -15,7 +15,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.app{width:min(100%,56
 .teamTitle{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 6px;font-size:12px;color:var(--muted)}.teamTitle b{color:var(--text);font-size:13px}
 .board{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.unit{min-width:0;background:linear-gradient(160deg,#1d2744,#10172a);border:1px solid #ffffff15;border-radius:13px;padding:6px 4px;text-align:center;transition:.15s;position:relative}.unit.dead{opacity:.32;filter:grayscale(1)}.unit.selected{border-color:var(--gold);box-shadow:0 0 0 2px #f5c76b22,0 0 20px #f5c76b18;transform:translateY(-2px)}.unit.target{border-color:#ff727b;box-shadow:0 0 0 2px #ef697422}.uicon{font-size:24px}.uname{font-size:9px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.mini{height:5px;background:#080b13;border-radius:9px;overflow:hidden;margin-top:5px}.mini i{display:block;height:100%;background:linear-gradient(90deg,#54d89b,#62e4b0)}.enemy .mini i{background:linear-gradient(90deg,#ef5e69,#ff9a7a)}.uhp{font-size:8px;color:var(--muted);margin-top:2px}.effect{position:absolute;top:3px;left:3px;font-size:8px;color:var(--gold)}
 .vs{text-align:center;color:#68748f;font-weight:900;font-size:11px;padding:6px 0}
-.status{display:flex;gap:6px;margin-top:9px}.pill{flex:1;background:#ffffff08;border:1px solid #ffffff0d;border-radius:11px;padding:6px;text-align:center;font-size:10px;color:var(--muted)}.pill b{display:block;color:var(--text);font-size:14px;margin-top:1px}
+.energyBar{margin-top:9px;background:#080b13;border:1px solid #ffffff12;border-radius:12px;padding:7px}.energyHead{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px}.energyTrack{height:9px;background:#161d30;border-radius:9px;overflow:hidden}.energyFill{height:100%;width:60%;background:linear-gradient(90deg,#5da9ff,#a98cff);transition:width .2s}.energyDots{display:flex;gap:5px;margin-top:6px}.energyDot{height:6px;flex:1;border-radius:5px;background:#252e48}.energyDot.on{background:#61b1ff;box-shadow:0 0 8px #61b1ff55}.pill{flex:1;background:#ffffff08;border:1px solid #ffffff0d;border-radius:11px;padding:6px;text-align:center;font-size:10px;color:var(--muted)}.pill b{display:block;color:var(--text);font-size:14px;margin-top:1px}
 .message{min-height:38px;display:grid;place-items:center;text-align:center;color:#dce3f5;font-size:12px;padding:3px}
 .handTitle{display:flex;justify-content:space-between;align-items:center;padding:2px 4px}.handTitle b{font-size:16px}.handTitle span{font-size:10px;color:var(--muted)}
 .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.card{text-align:right;background:linear-gradient(160deg,#1b2440,#10172b);border:1px solid #ffffff18;border-radius:17px;padding:9px;min-height:145px;box-shadow:0 8px 18px #0004;transition:.15s}.card:active{transform:scale(.97)}.card:disabled{opacity:.42}.card .icon{font-size:29px;line-height:1}.tag{float:left;font-size:9px;color:var(--gold);background:#f5c76b12;padding:4px 6px;border-radius:7px}.card h3{margin:7px 0 3px;font-size:13px}.desc{font-size:10px;color:var(--muted);line-height:1.45;min-height:29px}.cost{display:inline-flex;margin-top:6px;background:#5da9ff18;color:#8bc5ff;padding:4px 7px;border-radius:7px;font-size:9px}.controls{display:flex;gap:7px}.mainbtn{flex:1;padding:12px;border-radius:14px;font-weight:900;background:linear-gradient(135deg,#e9b95e,#f5d27e);color:#17120a}.mainbtn:disabled{opacity:.4}.ghost{padding:12px 15px;border-radius:14px;background:#ffffff09;border:1px solid #ffffff12}
@@ -32,7 +32,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.app{width:min(100%,56
 <div class="vs">⚔️ اختر بطاقتك ثم الهدف</div>
 <div class="teamTitle"><b>فريقك</b><span id="playerCount">5 بطاقات</span></div>
 <div class="board" id="playerBoard"></div>
-<div class="status"><div class="pill">الطاقة<b id="energy">3</b></div><div class="pill">الدور<b id="turn">أنت</b></div><div class="pill">سلسلة<b id="combo">0</b></div></div>
+<div class="energyBar"><div class="energyHead"><span>طاقة الهجوم</span><b id="energyLabel">3 / 5</b></div><div class="energyTrack"><div class="energyFill" id="energyFill"></div></div><div class="energyDots" id="energyDots"></div></div><div class="status"><div class="pill">الطاقة<b id="energy">3</b></div><div class="pill">الدور<b id="turn">أنت</b></div><div class="pill">سلسلة<b id="combo">0</b></div></div>
 <div class="message" id="message">اختر واحدة من بطاقاتك الخمس.</div>
 </section>
 <div class="handTitle"><b>بطاقات القدرات</b><span>كل بطاقة لها تأثير جانبي</span></div>
@@ -58,7 +58,7 @@ const enemyBase=[
 ];
 let state;
 function freshUnit(x){return {...x,hp:x.max,stunned:0,guarded:false};}
-function newState(){state={player:units.map(freshUnit),enemy:enemyBase.map(freshUnit),energy:3,round:1,combo:0,selected:null,target:null,over:false,turn:"player"};render();msg("اختر بطاقة من فريقك ثم اختر هدفًا من فريق الخصم.");}
+function newState(){state={player:units.map(freshUnit),enemy:enemyBase.map(freshUnit),energy:3,round:1,combo:0,selected:null,target:null,over:false,turn:"player",hand:[]};dealHand();render();msg("اختر بطاقة من فريقك ثم اختر هدفًا من الخصم.");}\nfunction dealHand(){state.hand=[];const pool=[...Array(units.length).keys()];while(state.hand.length<3){const i=pool.splice(Math.floor(Math.random()*pool.length),1)[0];state.hand.push(i);if(pool.length===0)break;} }
 function alive(arr){return arr.filter(x=>x.hp>0);}
 function msg(t){document.getElementById("message").textContent=t;}
 function unitHtml(u,i,enemy){
@@ -70,14 +70,14 @@ const pb=document.getElementById("playerBoard"),eb=document.getElementById("enem
 pb.innerHTML=state.player.map((u,i)=>unitHtml(u,i,false)).join("");eb.innerHTML=state.enemy.map((u,i)=>unitHtml(u,i,true)).join("");
 state.player.forEach((u,i)=>{if(u.hp>0)pb.children[i].onclick=()=>selectPlayer(i)});
 state.enemy.forEach((u,i)=>{if(u.hp>0)eb.children[i].onclick=()=>selectTarget(i)});
-document.getElementById("energy").textContent=state.energy;document.getElementById("round").textContent="الدور "+state.round;
+document.getElementById("energy").textContent=state.energy;document.getElementById("energyLabel").textContent=state.energy+" / 5";document.getElementById("energyFill").style.width=(state.energy/5*100)+"%";document.getElementById("energyDots").innerHTML=Array.from({length:5},(_,i)=>"<span class=\"energyDot "+(i<state.energy?"on":"")+"\"></span>").join("");document.getElementById("round").textContent="الدور "+state.round;
 document.getElementById("turn").textContent=state.turn==="player"?"أنت":"الخصم";document.getElementById("combo").textContent=state.combo;
 document.getElementById("playerCount").textContent=alive(state.player).length+" بطاقات";document.getElementById("enemyCount").textContent=alive(state.enemy).length+" بطاقات";
 renderCards();document.getElementById("endTurn").disabled=state.over||state.turn!=="player";
 }
 function renderCards(){
 const wrap=document.getElementById("cards");wrap.innerHTML="";
-units.forEach((c,i)=>{const b=document.createElement("button");b.className="card";const ready=state.player[i].hp>0&&state.energy>=c.cost&&state.turn==="player"&&!state.over;b.disabled=!ready;
+state.hand.forEach((i)=>{const c=units[i];const b=document.createElement("button");b.className="card";const ready=state.player[i].hp>0&&state.energy>=c.cost&&state.turn==="player"&&!state.over;b.disabled=!ready;
 b.innerHTML='<span class="tag">'+c.role+'</span><div class="icon">'+c.icon+'</div><h3>'+c.name+'</h3><div class="desc">'+c.desc+'</div><span class="cost">⚡ '+c.cost+' · '+c.side+'</span>';
 b.onclick=()=>selectPlayer(i);wrap.appendChild(b);});
 }
@@ -115,7 +115,7 @@ target.hp=Math.max(0,target.hp-dmg);
 });
 if(alive(state.player).length===0){finish(false);return;}
 state.player.forEach(u=>u.guarded=false);
-state.round++;state.energy=Math.min(5,state.energy+2);state.turn="player";state.player.forEach(u=>u.guarded=false);
+state.round++;state.energy=Math.min(5,state.energy+2);dealHand();state.turn="player";state.player.forEach(u=>u.guarded=false);
 msg("انتهى دور الخصم. طاقتك استعادت نقطتين.");render();
 }
 function checkWin(){if(alive(state.enemy).length===0)finish(true);else if(alive(state.player).length===0)finish(false);}
