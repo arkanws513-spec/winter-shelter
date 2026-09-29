@@ -28,161 +28,189 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}.app{width:min(100%,56
 <section class="arena">
 <div class="teamTitle"><b>فريق الخصم</b><span id="enemyCount">5 بطاقات</span></div>
 <div class="board enemy" id="enemyBoard"></div>
-<div class="vs">⚔️ اختر بطاقتك ثم الهدف</div>
+<div class="vs">🎴 30 بطاقة مختلفة — 5 لك و5 للخصم — توزيع عشوائي</div>
 <div class="teamTitle"><b>فريقك</b><span id="playerCount">5 بطاقات</span></div>
 <div class="board" id="playerBoard"></div>
 <div class="energyBar"><div class="energyHead"><span>طاقة الهجوم</span><b id="energyLabel">3 / 5</b></div><div class="energyTrack"><div class="energyFill" id="energyFill"></div></div><div class="energyDots" id="energyDots"></div></div>
 <div class="status"><div class="pill">الطاقة<b id="energy">3</b></div><div class="pill">الدور<b id="turn">أنت</b></div><div class="pill">سلسلة<b id="combo">0</b></div></div>
-<div class="message" id="message">اختر واحدة من بطاقاتك الخمس.</div>
+<div class="message" id="message">يتم توزيع 5 بطاقات عشوائيًا لكل طرف.</div>
 </section>
-<div class="handTitle"><b>بطاقات القدرات</b><span>كل بطاقة لها تأثير جانبي</span></div>
-<section class="cards" id="cards"></section>
+<div class="handTitle"><b>بطاقاتك الخمس</b><span>كل بطاقة مختلفة عن الأخرى</span></div>
 <div class="controls"><button class="mainbtn" id="endTurn">إنهاء الدور</button><button class="ghost" id="reset">↻</button></div>
-<div class="small">نظام 5 ضد 5 — كل شخصية بطاقة مستقلة بقدرات وآثار جانبية</div>
+<div class="small">مجموعة 30 بطاقة فريدة — في كل مباراة تحصل أنت والخصم على 5 بطاقات مختلفة عشوائيًا</div>
 </div>
 <div class="overlay" id="overlay"><div class="modal"><div class="big" id="resultIcon">🏆</div><h1 id="resultTitle"></h1><p id="resultText"></p><button class="mainbtn" id="playAgain">مباراة جديدة</button></div></div>
 <script>
-const units=[
-{id:"knight",name:"الفارس",icon:"⚔️",hp:26,max:26,atk:7,role:"هجوم",cost:1,desc:"ضربة قوية، لكن يتلقى 2 ضرر بعد الهجوم.",side:"ارتداد"},
-{id:"guard",name:"الحارس",icon:"🛡️",hp:34,max:34,atk:4,role:"دفاع",cost:1,desc:"يقلل أول ضرر يتلقاه الفريق 5 نقاط.",side:"حصانة"},
-{id:"mage",name:"الساحر",icon:"🔥",hp:20,max:20,atk:10,role:"سحر",cost:2,desc:"يصيب الهدف ويؤذي نفسه بنقطة واحدة.",side:"احتراق"},
-{id:"rogue",name:"المخادع",icon:"🗡️",hp:22,max:22,atk:6,role:"سرعة",cost:1,desc:"إذا هزم هدفه يحصل الفريق على طاقة إضافية.",side:"مخاطرة"},
-{id:"healer",name:"المعالج",icon:"💚",hp:24,max:24,atk:3,role:"دعم",cost:2,desc:"يعالج أضعف حليف 6 نقاط بدل الهجوم.",side:"لا يهاجم"}
+const cardPool=[
+{id:"c01",name:"حارس الفجر",icon:"🌅",hp:28,max:28,atk:6,cost:1,role:"دفاع",desc:"يقلل أول ضرر يتلقاه كل دور.",side:"درع الفجر"},
+{id:"c02",name:"شعلة زرقاء",icon:"🔥",hp:20,max:20,atk:9,cost:2,role:"سحر",desc:"ضرر مرتفع مقابل طاقة أكبر.",side:"احتراق"},
+{id:"c03",name:"نسمة الشفاء",icon:"🌿",hp:24,max:24,atk:3,cost:1,role:"دعم",desc:"بعد الهجوم تعالج نفسها قليلًا.",side:"استعادة"},
+{id:"c04",name:"مرآة الليل",icon:"🪞",hp:22,max:22,atk:5,cost:1,role:"مراوغة",desc:"أول هجوم يصيبها كل مباراة يضعف.",side:"انعكاس"},
+{id:"c05",name:"قلب الجبل",icon:"⛰️",hp:36,max:36,atk:4,cost:2,role:"ثبات",desc:"بطيئة لكنها تتحمل ضررًا كبيرًا.",side:"ثقل"},
+{id:"c06",name:"برق خاطف",icon:"⚡",hp:19,max:19,atk:8,cost:2,role:"سرعة",desc:"إذا بقي الهدف وحيدًا تحصل على +2.",side:"اندفاع"},
+{id:"c07",name:"حارس البلور",icon:"💎",hp:30,max:30,atk:4,cost:1,role:"حماية",desc:"يمنح نفسه حماية مؤقتة بعد الهجوم.",side:"بلورة"},
+{id:"c08",name:"دوامة الريح",icon:"🌪️",hp:23,max:23,atk:6,cost:2,role:"تحكم",desc:"يؤخر دور الهدف التالي.",side:"إبطاء"},
+{id:"c09",name:"نجمة الشفاء",icon:"⭐",hp:21,max:21,atk:2,cost:1,role:"دعم",desc:"تعيد 5 نقاط لأضعف حليف.",side:"نور"},
+{id:"c10",name:"حكيم الرمال",icon:"🏜️",hp:25,max:25,atk:5,cost:1,role:"تكتيك",desc:"يكسب طاقة إضافية إذا لم يهزم هدفًا.",side:"تركيز"},
+{id:"c11",name:"حارس الغابة",icon:"🌳",hp:32,max:32,atk:5,cost:2,role:"دفاع",desc:"يحمي أضعف حليف من جزء من الضرر.",side:"جذور"},
+{id:"c12",name:"طائر الرعد",icon:"🦅",hp:18,max:18,atk:10,cost:3,role:"قوة",desc:"أقوى ضربة في المجموعة.",side:"إجهاد"},
+{id:"c13",name:"قمر فضي",icon:"🌙",hp:24,max:24,atk:6,cost:2,role:"سحر",desc:"يستعيد نقطة طاقة عند إصابة هدف.",side:"مدّ قمري"},
+{id:"c14",name:"كتاب الأسرار",icon:"📖",hp:17,max:17,atk:7,cost:2,role:"معرفة",desc:"يتغير تأثيره كل دور.",side:"تقلب"},
+{id:"c15",name:"حارس البوابة",icon:"🚪",hp:34,max:34,atk:3,cost:1,role:"تحصين",desc:"يمنح نفسه حماية قوية عند انخفاض صحته.",side:"حصن"},
+{id:"c16",name:"زهرة الربيع",icon:"🌸",hp:22,max:22,atk:4,cost:1,role:"شفاء",desc:"تعالج نفسها 4 بعد كل هجوم.",side:"تفتح"},
+{id:"c17",name:"نجم الشمال",icon:"🧭",hp:26,max:26,atk:5,cost:1,role:"دقة",desc:"لا يتأثر بتأثيرات الإبطاء.",side:"اتجاه"},
+{id:"c18",name:"سحابة المطر",icon:"🌧️",hp:27,max:27,atk:4,cost:2,role:"دعم",desc:"تقلل هجوم الهدف في الدور القادم.",side:"بلل"},
+{id:"c19",name:"شعاع الشمس",icon:"☀️",hp:20,max:20,atk:8,cost:2,role:"نور",desc:"يزداد ضررها إذا كان حليف ضعيفًا.",side:"وهج"},
+{id:"c20",name:"حجر الحظ",icon:"🍀",hp:23,max:23,atk:5,cost:1,role:"حظ",desc:"فرصة لاستعادة الطاقة بعد اللعب.",side:"مجازفة"},
+{id:"c21",name:"حوت السحاب",icon:"🐋",hp:35,max:35,atk:4,cost:2,role:"عملاق",desc:"صحته مرتفعة وهجومه ثابت.",side:"بطء"},
+{id:"c22",name:"ثعلب الوهم",icon:"🦊",hp:19,max:19,atk:7,cost:1,role:"خداع",desc:"أول ضرر يتلقاه ينخفض بشدة.",side:"وهم"},
+{id:"c23",name:"عين الصقر",icon:"👁️",hp:21,max:21,atk:7,cost:2,role:"رصد",desc:"يستفيد من الهدف ذي الصحة الأقل.",side:"ملاحظة"},
+{id:"c24",name:"نهر الحياة",icon:"💧",hp:29,max:29,atk:3,cost:2,role:"شفاء",desc:"يعالج أضعف حليف 7 نقاط.",side:"تدفق"},
+{id:"c25",name:"حارس الثلج",icon:"❄️",hp:31,max:31,atk:4,cost:1,role:"تحكم",desc:"يخفض سرعة الخصم التالي.",side:"تجميد"},
+{id:"c26",name:"شعلة النجوم",icon:"✨",hp:18,max:18,atk:9,cost:3,role:"أسطوري",desc:"ضرر ضخم لكن كلفته عالية.",side:"انطفاء"},
+{id:"c27",name:"فراشة الضوء",icon:"🦋",hp:16,max:16,atk:6,cost:1,role:"سرعة",desc:"بعد اللعب تستعيد نقطة طاقة.",side:"خفة"},
+{id:"c28",name:"شجرة الحكمة",icon:"🌲",hp:33,max:33,atk:3,cost:2,role:"حكمة",desc:"تعطي أضعف حليف حماية مؤقتة.",side:"جذور"},
+{id:"c29",name:"بوابة الزمن",icon:"🌀",hp:20,max:20,atk:6,cost:2,role:"زمن",desc:"تؤخر رد الخصم في الدور التالي.",side:"اختلال"},
+{id:"c30",name:"قلب النجمة",icon:"💫",hp:25,max:25,atk:7,cost:2,role:"أسطوري",desc:"تزداد قوتها قليلًا مع كل حليف ساقط.",side:"ثمن القوة"}
 ];
-const enemyBase=[
-{id:"brute",name:"العملاق",icon:"👹",hp:32,max:32,atk:7,role:"قوة"},
-{id:"shade",name:"الظل",icon:"👤",hp:22,max:22,atk:6,role:"سرعة"},
-{id:"witch",name:"الساحرة",icon:"🧙",hp:20,max:20,atk:9,role:"سحر"},
-{id:"beast",name:"الوحش",icon:"🐺",hp:25,max:25,atk:6,role:"هجوم"},
-{id:"warden",name:"الحارس",icon:"🐲",hp:30,max:30,atk:5,role:"دفاع"}
-];
+
 let state;
-function freshUnit(x){return {...x,hp:x.max,stunned:0,guarded:false};}
+function freshCard(x){return {...x,hp:x.max,shield:0,skip:0,used:false};}
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
 function newState(){
-state={player:units.map(freshUnit),enemy:enemyBase.map(freshUnit),energy:3,round:1,combo:0,selected:null,target:null,over:false,turn:"player",hand:[]};
-dealHand();
-render();
-msg("اختر بطاقة من فريقك ثم اختر هدفًا من الخصم.");
-}
-function dealHand(){
-state.hand=[];
-const pool=[...Array(units.length).keys()];
-while(state.hand.length<3&&pool.length){
-const i=pool.splice(Math.floor(Math.random()*pool.length),1)[0];
-state.hand.push(i);
-}
+  const deck=shuffle(cardPool);
+  state={
+    player:deck.slice(0,5).map(freshCard),
+    enemy:deck.slice(5,10).map(freshCard),
+    energy:3,round:1,combo:0,selected:null,target:null,over:false,turn:"player",
+    usedIds:deck.slice(0,10).map(x=>x.id)
+  };
+  render();
+  msg("تم توزيع 10 بطاقات عشوائيًا من أصل 30: 5 لك و5 للخصم.");
 }
 function alive(arr){return arr.filter(x=>x.hp>0);}
 function msg(t){document.getElementById("message").textContent=t;}
 function unitHtml(u,i,enemy){
-const pct=Math.max(0,u.hp/u.max*100);
-return '<button class="unit '+(u.hp<=0?"dead ":"")+(state.selected===i&&!enemy?"selected ":"")+(state.target===i&&enemy?"target ":"")+'" '+(u.hp<=0?"disabled":"")+'><span class="effect">'+(u.stunned?"💫":"")+'</span><div class="uicon">'+u.icon+'</div><div class="uname">'+u.name+'</div><div class="mini"><i style="width:'+pct+'%"></i></div><div class="uhp">'+u.hp+' / '+u.max+'</div></button>';
+  const pct=Math.max(0,u.hp/u.max*100);
+  const status=(u.shield>0?"🛡️ ":"")+(u.skip>0?"💫":"");
+  return '<button class="unit '+(u.hp<=0?"dead ":"")+(state.selected===i&&!enemy?"selected ":"")+(state.target===i&&enemy?"target ":"")+'" '+(u.hp<=0?"disabled":"")+'>'+
+    '<span class="effect">'+status+'</span><div class="uicon">'+u.icon+'</div><div class="uname">'+u.name+'</div>'+
+    '<div class="mini"><i style="width:'+pct+'%"></i></div><div class="uhp">'+u.hp+' / '+u.max+'</div>'+
+    '<div class="uhp">⚡ '+u.cost+' · '+u.role+'</div></button>';
 }
 function render(){
-const pb=document.getElementById("playerBoard"),eb=document.getElementById("enemyBoard");
-pb.innerHTML=state.player.map((u,i)=>unitHtml(u,i,false)).join("");
-eb.innerHTML=state.enemy.map((u,i)=>unitHtml(u,i,true)).join("");
-state.player.forEach((u,i)=>{if(u.hp>0)pb.children[i].onclick=()=>selectPlayer(i);});
-state.enemy.forEach((u,i)=>{if(u.hp>0)eb.children[i].onclick=()=>selectTarget(i);});
-document.getElementById("energy").textContent=state.energy;
-document.getElementById("energyLabel").textContent=state.energy+" / 5";
-document.getElementById("energyFill").style.width=(state.energy/5*100)+"%";
-document.getElementById("energyDots").innerHTML=Array.from({length:5},(_,i)=>'<span class="energyDot '+(i<state.energy?"on":"")+'"></span>').join("");
-document.getElementById("round").textContent="الدور "+state.round;
-document.getElementById("turn").textContent=state.turn==="player"?"أنت":"الخصم";
-document.getElementById("combo").textContent=state.combo;
-document.getElementById("playerCount").textContent=alive(state.player).length+" بطاقات";
-document.getElementById("enemyCount").textContent=alive(state.enemy).length+" بطاقات";
-renderCards();
-document.getElementById("endTurn").disabled=state.over||state.turn!=="player";
-}
-function renderCards(){
-const wrap=document.getElementById("cards");
-wrap.innerHTML="";
-state.hand.forEach(i=>{
-const c=units[i],b=document.createElement("button");
-b.className="card";
-const ready=state.player[i].hp>0&&state.energy>=c.cost&&state.turn==="player"&&!state.over;
-b.disabled=!ready;
-b.innerHTML='<span class="tag">'+c.role+'</span><div class="icon">'+c.icon+'</div><h3>'+c.name+'</h3><div class="desc">'+c.desc+'</div><span class="cost">⚡ '+c.cost+' · '+c.side+'</span>';
-b.onclick=()=>selectPlayer(i);
-wrap.appendChild(b);
-});
+  const pb=document.getElementById("playerBoard"),eb=document.getElementById("enemyBoard");
+  pb.innerHTML=state.player.map((u,i)=>unitHtml(u,i,false)).join("");
+  eb.innerHTML=state.enemy.map((u,i)=>unitHtml(u,i,true)).join("");
+  state.player.forEach((u,i)=>{if(u.hp>0)pb.children[i].onclick=()=>selectPlayer(i);});
+  state.enemy.forEach((u,i)=>{if(u.hp>0)eb.children[i].onclick=()=>selectTarget(i);});
+  document.getElementById("energy").textContent=state.energy;
+  document.getElementById("energyLabel").textContent=state.energy+" / 5";
+  document.getElementById("energyFill").style.width=(state.energy/5*100)+"%";
+  document.getElementById("energyDots").innerHTML=Array.from({length:5},(_,i)=>'<span class="energyDot '+(i<state.energy?"on":"")+'"></span>').join("");
+  document.getElementById("round").textContent="الدور "+state.round;
+  document.getElementById("turn").textContent=state.turn==="player"?"أنت":"الخصم";
+  document.getElementById("combo").textContent=state.combo;
+  document.getElementById("playerCount").textContent=alive(state.player).length+" بطاقات";
+  document.getElementById("enemyCount").textContent=alive(state.enemy).length+" بطاقات";
+  document.getElementById("endTurn").disabled=state.over||state.turn!=="player";
 }
 function selectPlayer(i){
-if(state.over||state.turn!=="player"||state.player[i].hp<=0)return;
-state.selected=i;
-state.target=null;
-msg("تم اختيار "+state.player[i].name+" — اختر بطاقة من الخصم.");
-render();
+  if(state.over||state.turn!=="player"||state.player[i].hp<=0)return;
+  state.selected=i;state.target=null;
+  msg("اختر هدفًا من بطاقات الخصم.");
+  render();
 }
 function selectTarget(i){
-if(state.selected===null||state.over||state.turn!=="player")return;
-state.target=i;
-attack(state.selected,i);
+  if(state.selected===null||state.over||state.turn!=="player")return;
+  state.target=i;playCard(state.selected,i);
 }
-function attack(pi,ei){
-const p=state.player[pi],e=state.enemy[ei];
-if(!p||!e||p.hp<=0||e.hp<=0)return;
-if(state.energy<p.cost){msg("تحتاج إلى طاقة أكثر.");return;}
-state.energy-=p.cost;
-if(p.id==="healer"){
-const ally=alive(state.player).sort((a,b)=>a.hp-b.hp)[0];
-if(ally)ally.hp=Math.min(ally.max,ally.hp+6);
-msg(p.name+" عالج "+(ally?ally.name:"حليفًا")+" بمقدار 6.");
-}else{
-let dmg=p.atk+(state.combo>=2?2:0);
-e.hp=Math.max(0,e.hp-dmg);
-msg(p.name+" هاجم "+e.name+" وسبب "+dmg+" ضرر.");
-if(p.id==="knight")p.hp=Math.max(0,p.hp-2);
-if(p.id==="mage")p.hp=Math.max(0,p.hp-1);
-if(p.id==="rogue"&&e.hp<=0)state.energy=Math.min(5,state.energy+1);
-if(e.hp<=0)state.combo++;else state.combo=0;
-}
-state.selected=null;
-state.target=null;
-checkWin();
-render();
+function playCard(pi,ei){
+  const p=state.player[pi],e=state.enemy[ei];
+  if(!p||!e||p.hp<=0||e.hp<=0)return;
+  if(state.energy<p.cost){msg("هذه البطاقة تحتاج طاقة أكثر.");return;}
+  state.energy-=p.cost;
+  let dmg=p.atk;
+  if(p.id==="c14") dmg=p.atk+(state.round%2===0?3:-1);
+  if(p.id==="c19" && alive(state.player).some(x=>x.hp<x.max*.45))dmg+=2;
+  if(p.id==="c23") dmg+=(e.hp<=Math.min(...alive(state.enemy).map(x=>x.hp))?2:0);
+  if(p.id==="c30") dmg+=Math.max(0,5-alive(state.player).length);
+  if(state.combo>=2)dmg+=2;
+
+  if(p.id==="c09"||p.id==="c24"||p.id==="c28"){
+    const ally=alive(state.player).sort((a,b)=>a.hp-b.hp)[0];
+    if(ally){
+      ally.hp=Math.min(ally.max,ally.hp+(p.id==="c24"?7:5));
+      if(p.id==="c28")ally.shield=4;
+    }
+  }
+  if(p.id==="c03"||p.id==="c16"){p.hp=Math.min(p.max,p.hp+(p.id==="c16"?4:3));}
+  if(p.id==="c18"){e.atkDebuff=2;}
+  if(p.id==="c25"||p.id==="c08"||p.id==="c29"){e.skip=1;}
+  if(p.id==="c01"){p.shield=5;}
+  if(p.id==="c07"){p.shield=4;}
+  if(p.id==="c15"&&p.hp<p.max*.45){p.shield=7;}
+  if(p.id==="c17"){p.skip=0;}
+  if(p.id==="c20"&&Math.random()<.5)state.energy=Math.min(5,state.energy+1);
+  if(p.id==="c27")state.energy=Math.min(5,state.energy+1);
+
+  e.hp=Math.max(0,e.hp-dmg);
+
+  if(p.id==="c02")p.hp=Math.max(0,p.hp-1);
+  if(p.id==="c06"&&alive(state.enemy).length===1)dmg+=2;
+  if(p.id==="c12")p.skip=1;
+  if(p.id==="c26")p.skip=1;
+  if(p.id==="c10"&&e.hp>0)state.energy=Math.min(5,state.energy+1);
+
+  if(e.hp<=0){state.combo++;msg(p.name+" لعب بطاقته وأسقط "+e.name+". السلسلة "+state.combo+"!");}
+  else{state.combo=0;msg(p.name+" أصاب "+e.name+" بـ "+dmg+" نقطة.");}
+
+  state.selected=null;state.target=null;
+  checkWin();render();
 }
 function endTurn(){
-if(state.over||state.turn!=="player")return;
-state.turn="enemy";
-state.selected=null;
-state.target=null;
-render();
-setTimeout(enemyTurn,350);
+  if(state.over||state.turn!=="player")return;
+  state.turn="enemy";state.selected=null;state.target=null;render();
+  setTimeout(enemyTurn,350);
 }
 function enemyTurn(){
-if(state.over)return;
-const foes=alive(state.player),attackers=alive(state.enemy);
-attackers.forEach(e=>{
-if(e.stunned>0){e.stunned--;return;}
-const target=foes[Math.floor(Math.random()*foes.length)];
-if(!target||target.hp<=0)return;
-let dmg=e.atk;
-if(target.id==="guard"&&!target.guarded){dmg=Math.max(0,dmg-5);target.guarded=true;}
-target.hp=Math.max(0,target.hp-dmg);
-});
-if(alive(state.player).length===0){finish(false);return;}
-state.player.forEach(u=>u.guarded=false);
-state.round++;
-state.energy=Math.min(5,state.energy+2);
-dealHand();
-state.turn="player";
-msg("انتهى دور الخصم. طاقتك استعادت نقطتين.");
-render();
+  if(state.over)return;
+  const attackers=alive(state.enemy);
+  for(const e of attackers){
+    if(e.skip>0){e.skip--;continue;}
+    const foes=alive(state.player);
+    if(!foes.length)break;
+    const target=foes[Math.floor(Math.random()*foes.length)];
+    let dmg=e.atk+(e.atkDebuff||0);
+    e.atkDebuff=0;
+    if(e.shield>0)e.shield=Math.max(0,e.shield-1);
+    if(target.shield>0){dmg=Math.max(0,dmg-target.shield);target.shield=0;}
+    if(target.id==="c04"&&!target.used){dmg=Math.floor(dmg/2);target.used=true;}
+    if(target.id==="c22"&&!target.used){dmg=Math.floor(dmg/3);target.used=true;}
+    target.hp=Math.max(0,target.hp-dmg);
+  }
+  if(alive(state.player).length===0){finish(false);return;}
+  state.player.forEach(u=>{u.atkDebuff=0;});
+  state.round++;
+  state.energy=Math.min(5,state.energy+2);
+  state.turn="player";
+  msg("انتهى دور الخصم. بطاقاتك بقيت كما هي، والطاقة استعادت نقطتين.");
+  render();
 }
 function checkWin(){
-if(alive(state.enemy).length===0)finish(true);
-else if(alive(state.player).length===0)finish(false);
+  if(alive(state.enemy).length===0)finish(true);
+  else if(alive(state.player).length===0)finish(false);
 }
 function finish(win){
-state.over=true;
-render();
-document.getElementById("resultIcon").textContent=win?"🏆":"💥";
-document.getElementById("resultTitle").textContent=win?"انتصار!":"هُزمت";
-document.getElementById("resultText").textContent=win?"هزمت الفريق المنافس بخمس بطاقات لكل فريق.":"تم القضاء على فريقك. جرّب اختيار الأهداف وترتيب القدرات بشكل مختلف.";
-document.getElementById("overlay").classList.add("show");
+  state.over=true;render();
+  document.getElementById("resultIcon").textContent=win?"🏆":"💫";
+  document.getElementById("resultTitle").textContent=win?"انتصار!":"انتهت المباراة";
+  document.getElementById("resultText").textContent=win?"فزت باستخدام 5 بطاقات من مجموعة 30 بطاقة.":"انتهت بطاقات فريقك. جرّب توزيعًا عشوائيًا جديدًا.";
+  document.getElementById("overlay").classList.add("show");
 }
 document.getElementById("endTurn").onclick=endTurn;
 document.getElementById("reset").onclick=newState;
