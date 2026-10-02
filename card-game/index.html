@@ -122,8 +122,8 @@ button{cursor:pointer;touch-action:manipulation}
 <div class="small">مجموعة 30 بطاقة فريدة — في كل مباراة تحصل أنت والخصم على 5 بطاقات مختلفة عشوائيًا</div>
 </div>
 
-<section class="screen" id="towerScreen" style="flex-direction:column;gap:9px"><button class="battleBack" onclick="showScreen('homeScreen')">‹ العودة للصفحة الرئيسية</button><div class="top"><div class="logo">🏯 برج <span>السماء</span></div><div class="round">50 طابقًا</div></div><div id="towerContent"></div></section>
-<section class="screen" id="pvpScreen" style="flex-direction:column;gap:9px"><button class="battleBack" onclick="showScreen('homeScreen')">‹ العودة للصفحة الرئيسية</button><div class="top"><div class="logo">🌐 قتال <span>ضد لاعب</span></div></div><div id="pvpContent"></div></section>
+<section class="screen" id="towerScreen" style="flex-direction:column;gap:9px"><button class="battleBack" onclick="goHome()">‹ العودة للصفحة الرئيسية</button><div class="top"><div class="logo">🏯 برج <span>السماء</span></div><div class="round">50 طابقًا</div></div><div id="towerContent"></div></section>
+<section class="screen" id="pvpScreen" style="flex-direction:column;gap:9px"><button class="battleBack" onclick="goHome()">‹ العودة للصفحة الرئيسية</button><div class="top"><div class="logo">🌐 قتال <span>ضد لاعب</span></div></div><div id="pvpContent"></div></section>
 <div class="panel" id="infoPanel"><div class="panelBox"><div class="panelHead"><h2 id="panelTitle"></h2><button class="close" id="closePanel">✕</button></div><div id="panelContent"></div></div></div>
 </section>
 <div class="overlay" id="overlay"><div class="modal"><div class="big" id="resultIcon">🏆</div><h1 id="resultTitle"></h1><p id="resultText"></p><button class="mainbtn" id="playAgain">مباراة جديدة</button></div></div>
@@ -211,10 +211,13 @@ async function finishCloudLogin(user){
 }
 function saveProfileLocalOnly(){localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}
 async function signInWithGoogle(){
-  const redirectTo=window.location.origin+window.location.pathname;
-  const {data,error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
+  const redirectTo='https://arkanws513-spec.github.io/winter-shelter/card-game/';
+  const {data,error}=await supabaseClient.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo,queryParams:{access_type:'offline',prompt:'consent'}}
+  });
   if(error){alert('تعذر بدء تسجيل Google: '+error.message);return;}
-  if(data?.url)window.location.href=data.url;
+  if(data?.url)window.location.assign(data.url);
 }
 async function bootAuth(){
   renderAuth();
@@ -225,8 +228,8 @@ async function bootAuth(){
   const code=params.get('code');
   if(code){
     const {error}=await supabaseClient.auth.exchangeCodeForSession(code);
+    if(error)alert('فشل إكمال تسجيل Google: '+error.message);
     history.replaceState({},document.title,window.location.pathname);
-    if(error)console.error('OAuth:',error.message);
   }
   const {data}=await supabaseClient.auth.getSession();
   if(data.session?.user)await finishCloudLogin(data.session.user);
@@ -249,8 +252,17 @@ function updateHome(){
 }
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(x=>x.classList.remove("show"));
-  document.getElementById(id).classList.add("show");
+  const target=document.getElementById(id);
+  if(!target)return;
+  target.classList.add("show");
   updateHome();
+}
+function goHome(){
+  document.getElementById("overlay").classList.remove("show");
+  document.getElementById("infoPanel").classList.remove("show");
+  const duel=document.getElementById("duelOverlay");
+  if(duel)duel.classList.remove("show");
+  showScreen("homeScreen");
 }
 function openPanel(title,html){document.getElementById("panelTitle").textContent=title;document.getElementById("panelContent").innerHTML=html;document.getElementById("infoPanel").classList.add("show");}
 function closePanel(){document.getElementById("infoPanel").classList.remove("show");}
@@ -481,12 +493,9 @@ document.getElementById("playAgain").onclick=()=>{
 document.getElementById("startGame").onclick=()=>{if(window.openDeckBuilder&&profile.deckIds&&profile.deckIds.length===5){showScreen("battleScreen");startMatch();}else{showScreen("homeScreen");if(window.openDeckBuilder)openDeckBuilder();}};
 document.getElementById("backPrev").onclick=()=>{
   if(document.getElementById("overlay").classList.contains("show"))return;
-  showScreen("homeScreen");
+  goHome();
 };
-document.getElementById("backHome").onclick=()=>{
-  document.getElementById("overlay").classList.remove("show");
-  showScreen("homeScreen");
-};
+document.getElementById("backHome").onclick=goHome;
 document.getElementById("openStats").onclick=renderStats;
 document.getElementById("playerAvatar").onclick=renderPersonalStats;
 document.getElementById("openQuests").onclick=renderQuests;
