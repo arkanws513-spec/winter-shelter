@@ -165,7 +165,7 @@ const cardPool=[
 const SUPABASE_URL='https://nhxybkkclzevsgrrgrjo.supabase.co';
 const SUPABASE_KEY='sb_publishable_nM7yOvy6BgF-GeEJVGhU4w_VwJsDLDn';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let cloudUser=null,cloudLoaded=false,cloudBusy=false;
+let cloudUser=null,cloudLoaded=false,cloudBusy=false,cloudLoginUserId=null;
 const PROFILE_KEY="card_legends_profile_v2";
 const defaultProfile={xp:0,level:1,wins:0,losses:0,matches:0,plays:0,kills:0,unlocked:[],questWins:0,questKills:0};
 function loadProfile(){try{return {...defaultProfile,...JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}")};}catch{return {...defaultProfile};}}
@@ -196,6 +196,9 @@ function renderAuth(){
   }
 }
 async function finishCloudLogin(user){
+  if(!user?.id)return;
+  if(cloudLoginUserId===user.id&&cloudLoaded)return;
+  cloudLoginUserId=user.id;
   cloudUser=user;cloudLoaded=false;renderAuth();
   const {data,error}=await supabaseClient.from('card_legends_saves').select('profile,display_name').eq('user_id',user.id).maybeSingle();
   if(error){console.error('Cloud load:',error.message);cloudLoaded=true;renderAuth();return;}
@@ -224,7 +227,7 @@ async function bootAuth(){
   const params=new URLSearchParams(window.location.search);
   const hash=new URLSearchParams(window.location.hash.replace(/^#/,''));
   const err=params.get('error_description')||hash.get('error_description');
-  if(err){alert('فشل تسجيل Google: '+decodeURIComponent(err));history.replaceState({},document.title,window.location.pathname);return;}
+  if(err){alert('فشل تسجيل Google: '+err);history.replaceState({},document.title,window.location.pathname);return;}
   const code=params.get('code');
   if(code){
     const {error}=await supabaseClient.auth.exchangeCodeForSession(code);
@@ -237,7 +240,7 @@ async function bootAuth(){
 }
 supabaseClient.auth.onAuthStateChange((event,session)=>{
   if(event==='SIGNED_IN'&&session?.user&&!cloudUser)setTimeout(()=>finishCloudLogin(session.user),0);
-  if(event==='SIGNED_OUT'){cloudUser=null;cloudLoaded=false;renderAuth();updateHome();}
+  if(event==='SIGNED_OUT'){cloudUser=null;cloudLoaded=false;cloudLoginUserId=null;renderAuth();updateHome();}
 });
 setInterval(()=>{if(cloudUser&&cloudLoaded)saveCloud()},15000);
 
