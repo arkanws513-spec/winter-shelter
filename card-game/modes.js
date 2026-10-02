@@ -38,8 +38,9 @@ window.TOWER_STATS=TOWER_STATS;window.TOWER_CARDS=TOWER_CARDS;
 function ensure(){
  profile.towerFloor=Math.max(1,Math.min(50,Number(profile.towerFloor||1)));
  profile.towerPoints=Math.max(0,Number(profile.towerPoints||0));
- profile.towerOwned=Array.isArray(profile.towerOwned)?profile.towerOwned:[];
+ profile.towerOwned=Array.isArray(profile.towerOwned)?[...new Set(profile.towerOwned.filter(id=>TOWER_CARDS.some(c=>c.id===id)))]:[];
  profile.freeStats=profile.freeStats&&typeof profile.freeStats==='object'?profile.freeStats:{atk:0,def:0,block:0,dodge:0};
+ ['atk','def','block','dodge'].forEach(k=>{profile.freeStats[k]=Math.max(0,Number(profile.freeStats[k]||0));});
  profile.pvpWins=Number(profile.pvpWins||0);profile.pvpLosses=Number(profile.pvpLosses||0);
 }
 function cardById(id){return TOWER_CARDS.find(c=>c.id===id)||cardPool.find(c=>c.id===id)}
@@ -95,10 +96,13 @@ function ownedHtml(){
  return '<div class="towerCards">'+profile.towerOwned.map(id=>{const c=cardById(id);return '<div class="towerCard"><div class="tcIcon">'+c.icon+'</div><b>'+c.name+'</b><small>'+c.role+' · ⚔️ '+c.atk+'</small></div>'}).join('')+'</div><div class="small" style="margin-top:10px">يمكنك استبدال بطاقتين من تشكيلتك الأساسية ببطاقتين من هذه المجموعة.</div>';
 }
 function chooseTowerReward(){
- const choices=shuffle(TOWER_CARDS).slice(0,15);
+ const available=TOWER_CARDS.filter(c=>!profile.towerOwned.includes(c.id));
+ const choices=shuffle(available).slice(0,15);
  openPanel('🎴 اختر بطاقة واحدة','<div class="quest"><b>اختيار عشوائي من 15 بطاقة مقلوبة</b><span>اختر بطاقة واحدة فقط. هذه البطاقة تصبح ملكك ولن تظهر عشوائيًا في المعارك.</span></div><div class="towerCards">'+choices.map((c,i)=>'<button class="towerCard back pickChoice" onclick="claimTowerCard(\''+c.id+'\')"><div class="tcIcon">❔</div><b>بطاقة '+(i+1)+'</b><small>مخفية</small></button>').join('')+'</div>');
 }
 function claimTowerCard(id){
+ ensure();
+ if(!TOWER_CARDS.some(c=>c.id===id)||profile.towerOwned.includes(id)){openPanel('ℹ️ البطاقة غير متاحة','<div class="small">هذه البطاقة حصلت عليها بالفعل أو لم تعد متاحة للاختيار.</div>');return;}
  profile.towerOwned.push(id);saveProfile();const c=cardById(id);
  openPanel('🏆 تم الحصول على بطاقة','<div class="towerCard" style="max-width:160px;margin:auto"><div class="tcIcon">'+c.icon+'</div><b>'+c.name+'</b><small>'+c.role+' · ⚔️ '+c.atk+'</small></div><p class="small">أصبحت هذه البطاقة ملكك ويمكنك استخدامها بدل أي بطاقة من تشكيلتك الأساسية.</p>');
  renderTower();
@@ -112,9 +116,12 @@ function startTower(){
 }
 function getBattleDeck(){
  ensure();
- const ids=(profile.deckIds&&profile.deckIds.length===5)?profile.deckIds:shuffle(cardPool).slice(0,5).map(x=>x.id);
- profile.deckIds=ids;
- return ids.map(id=>cardById(id)).filter(Boolean).map(freshCard);
+ const validIds=new Set([...cardPool.map(x=>x.id),...profile.towerOwned]);
+ const saved=(Array.isArray(profile.deckIds)?profile.deckIds:[]).filter(id=>validIds.has(id));
+ const ids=saved.length===5?[...new Set(saved)]:[];
+ const finalIds=ids.length===5?ids:shuffle(cardPool).slice(0,5).map(x=>x.id);
+ profile.deckIds=finalIds;
+ return finalIds.map(id=>cardById(id)).filter(Boolean).map(freshCard);
 }
 function buildTowerEnemy(f){
  const base=shuffle(cardPool).slice(0,5);
