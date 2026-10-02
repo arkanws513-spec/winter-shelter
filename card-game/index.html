@@ -465,7 +465,7 @@ document.getElementById("playAgain").onclick=()=>{
     newState();
   }
 };
-document.getElementById("startGame").onclick=()=>{showScreen("battleScreen");startMatch();};
+document.getElementById("startGame").onclick=()=>{if(window.openDeckBuilder&&profile.deckIds&&profile.deckIds.length===5){showScreen("battleScreen");startMatch();}else{showScreen("homeScreen");if(window.openDeckBuilder)openDeckBuilder();}};
 document.getElementById("backPrev").onclick=()=>{
   if(document.getElementById("overlay").classList.contains("show"))return;
   showScreen("homeScreen");
