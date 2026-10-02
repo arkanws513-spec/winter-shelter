@@ -349,53 +349,23 @@ function playCard(pi,ei){
   const p=state.player[pi],e=state.enemy[ei];
   if(!p||!e||p.hp<=0||e.hp<=0)return;
   if(state.energy<p.cost){msg("هذه البطاقة تحتاج طاقة أكثر.");return;}
-  state.energy-=p.cost;
-  profile.plays++;saveProfile();
-  let dmg=p.atk;
-  if(p.id==="c14") dmg=p.atk+(state.round%2===0?3:-1);
-  if(p.id==="c19" && alive(state.player).some(x=>x.hp<x.max*.45))dmg+=2;
-  if(p.id==="c06" && alive(state.enemy).length===1)dmg+=2;
-  if(p.id==="c23") dmg+=(e.hp<=Math.min(...alive(state.enemy).map(x=>x.hp))?2:0);
-  if(p.id==="c06" && alive(state.enemy).length===1)dmg+=2;
-  if(p.id==="c30") dmg+=Math.max(0,5-alive(state.player).length);
-  if(state.combo>=2)dmg+=2;
-
-  if(p.id==="c09"||p.id==="c24"||p.id==="c28"){
-    const ally=alive(state.player).sort((a,b)=>a.hp-b.hp)[0];
-    if(ally){
-      ally.hp=Math.min(ally.max,ally.hp+(p.id==="c24"?7:5));
-      if(p.id==="c28")ally.shield=4;
-    }
-  }
-  if(p.id==="c03"||p.id==="c16"){p.hp=Math.min(p.max,p.hp+(p.id==="c16"?4:3));}
-  if(p.id==="c18"){e.atkDebuff=2;}
-  if(p.id==="c13")state.energy=Math.min(5,state.energy+1);
-  if(p.id==="c25"||p.id==="c08"||p.id==="c29"){e.skip=1;}
-  if(p.id==="c01"){p.shield=5;}
-  if(p.id==="c07"){p.shield=4;}
-  if(p.id==="c15"&&p.hp<p.max*.45){p.shield=7;}
-  if(p.id==="c17"){p.skip=0;}
-  if(p.id==="c20"&&Math.random()<.5)state.energy=Math.min(5,state.energy+1);
-  if(p.id==="c27"&&!p.used){state.energy=Math.min(5,state.energy+1);p.used=true;}
-
-  e.hp=Math.max(0,e.hp-dmg);
-
-  if(p.id==="c02")p.hp=Math.max(0,p.hp-1);
-  if(p.id==="c12")p.skip=1;
-  if(p.id==="c26")p.skip=1;
-  if(p.id==="c10"&&e.hp>0)state.energy=Math.min(5,state.energy+1);
-
-  if(e.hp<=0){profile.kills++;profile.questKills++;saveProfile();state.combo++;msg(p.name+" لعب بطاقته وأسقط "+e.name+". السلسلة "+state.combo+"!");}
-  else{state.combo=0;msg(p.name+" أصاب "+e.name+" بـ "+dmg+" نقطة.");}
-
-  state.selected=null;state.target=null;
-  checkWin();render();
+  // كل الضرر والتأثيرات أصبحت داخل نظام المبارزة الجديد حتى لا يحدث هجوم قديم قبل صفحة المعركة.
+  openDuel(pi,ei,'player');
 }
+
 function endTurn(){
   if(state.over||state.turn!=="player")return;
+  const foes=alive(state.enemy), attackers=alive(state.player);
+  if(!foes.length||!attackers.length){checkWin();return;}
   state.turn="enemy";state.selected=null;state.target=null;render();
-  setTimeout(enemyTurn,350);
+  const enemy=foes[Math.floor(Math.random()*foes.length)];
+  const target=attackers[Math.floor(Math.random()*attackers.length)];
+  const ei=state.enemy.indexOf(enemy), pi=state.player.indexOf(target);
+  if(ei<0||pi<0){state.turn="player";render();return;}
+  msg(enemy.name+" اختار "+target.name+" — تبدأ المواجهة!");
+  openDuel(pi,ei,'enemy');
 }
+
 function enemyTurn(){
   if(state.over)return;
   const attackers=alive(state.enemy);
