@@ -57,6 +57,73 @@ function togglePause(){
    nextAttack();
  }
 }
+function autoResolve(){
+ if(!duel)return;
+ if(duel.timer)clearTimeout(duel.timer);
+ duel.paused=false;
+ const p=state.player[duel.pi],e=state.enemy[duel.ei];
+ if(!p||!e)return;
+ const sim={
+   p:{hp:p.hp,max:p.max,atk:p.atk,id:p.id,cost:p.cost,duelUsed:false,shield:p.shield||0,atkDebuff:p.atkDebuff||0},
+   e:{hp:e.hp,max:e.max,atk:e.atk,id:e.id,cost:e.cost,duelUsed:false,shield:e.shield||0,atkDebuff:e.atkDebuff||0},
+   energy:state.energy, step:duel.step, turns:0, pdmg:0, edmg:0
+ };
+ while(sim.p.hp>0&&sim.e.hp>0&&sim.turns<120){
+   const pt=sim.step%2===0, a=pt?sim.p:sim.e, t=pt?sim.e:sim.p;
+   const as=stats(a),ts=stats(t);
+   let dmg=a.atk;
+   if(pt){
+     if(sim.energy>=a.cost)sim.energy-=a.cost; else dmg=Math.max(1,dmg-2);
+     if(a.id==='c12')dmg+=5;
+     if(a.id==='c26')dmg+=8;
+     if(a.id==='c19'&&sim.p.hp<sim.p.max*.55)dmg+=4;
+     if(a.id==='c23'&&sim.e.hp<=sim.p.hp)dmg+=3;
+     if(a.id==='c30')dmg+=Math.max(0,5-(sim.p.hp>0?1:0))*2;
+   }else dmg=Math.max(0,dmg-(a.atkDebuff||0));
+   const dodge=Math.max(5,ts.dodge-Math.max(0,a.atk-5)*2);
+   if(Math.random()*100>=dodge){
+     const armorPen=Math.max(0,(a.atk-7)*3);
+     const effectiveDef=Math.max(0,ts.def-armorPen);
+     let hit=Math.max(1,Math.round(dmg*(100/(100+effectiveDef))));
+     if(Math.random()*100<ts.block)hit=Math.max(1,Math.round(hit*.35));
+     if((a.id==='c02'||a.id==='c12'||a.id==='c26')&&Math.random()<.22)hit*=2;
+     if(t.id==='c04'&&!t.duelUsed){t.duelUsed=true;hit=Math.max(1,Math.floor(hit*.5))}
+     if(t.id==='c22'&&!t.duelUsed){t.duelUsed=true;hit=Math.max(1,Math.floor(hit*.7))}
+     if(a.id==='c20'&&Math.random()<.2)sim.energy=Math.min(5,sim.energy+1);
+     if(a.id==='c13')sim.energy=Math.min(5,sim.energy+1);
+     if(a.id==='c03'||a.id==='c16')a.hp=Math.min(a.max,a.hp+(a.id==='c16'?3:2));
+     if(a.id==='c24')a.hp=Math.min(a.max,a.hp+4);
+     if(a.id==='c28')a.shield=Math.max(a.shield||0,5);
+     if(a.id==='c18')t.atkDebuff=2;
+     if(a.id==='c25')t.atkDebuff=3;
+     if(a.id==='c08')t.atkDebuff=2;
+     if(a.id==='c29'&&Math.random()<.18)sim.step++;
+     if(t.shield>0){hit=Math.max(0,hit-t.shield);t.shield=0}
+     t.hp=Math.max(0,t.hp-hit);
+     if(pt)sim.pdmg+=hit;else sim.edmg+=hit;
+   }
+   sim.step++;sim.turns++;
+ }
+ const win=sim.p.hp>0&&sim.e.hp<=0?'player':sim.e.hp>0&&sim.p.hp<=0?'enemy':'draw';
+ p.hp=Math.max(0,sim.p.hp);e.hp=Math.max(0,sim.e.hp);
+ p.shield=sim.p.shield;e.shield=sim.e.shield;
+ p.atkDebuff=0;e.atkDebuff=0;
+ document.getElementById('duelAction').disabled=false;
+ document.getElementById('duelPause').disabled=true;
+ document.getElementById('duelFinish').disabled=true;
+ document.getElementById('duelRetreat').textContent='✕ إغلاق النتيجة';
+ document.getElementById('duelStatus').innerHTML=win==='player'
+   ? '🏆 <b>حسم الذكاء الاصطناعي المواجهة لصالحك!</b><br>ضررك: '+sim.pdmg+' · ضرر الخصم: '+sim.edmg+' · عدد الضربات: '+sim.turns
+   : win==='enemy'
+   ? '💥 <b>حسم الذكاء الاصطناعي المواجهة لصالح الخصم.</b><br>ضررك: '+sim.pdmg+' · ضرر الخصم: '+sim.edmg+' · عدد الضربات: '+sim.turns
+   : '⚖️ <b>المواجهة انتهت بتعادل حسابي.</b><br>ضررك: '+sim.pdmg+' · ضرر الخصم: '+sim.edmg+' · عدد الضربات: '+sim.turns;
+ renderDuel();
+ if(win==='player')msg(p.name+' حسم المواجهة بالحساب الفوري.');
+ else if(win==='enemy')msg(e.name+' حسم المواجهة بالحساب الفوري.');
+ else msg('انتهت المواجهة بالحساب الفوري.');
+ if(win==='player'){profile.kills++;state.combo++;saveProfile();}
+ setTimeout(()=>{ if(duel){ const enemyTurn=duel.starter==='enemy'; close(); checkWin(); if(enemyTurn&&!state.over){state.turn='player';render();} } },1200);
+}
 function retreat(){
  if(!duel)return;
  if(!confirm('هل تريد الانسحاب من المعركة؟ سيتم إنهاء المواجهة دون احتساب فوز.'))return;
@@ -66,5 +133,5 @@ function retreat(){
 }
 
 function close(){const wasEnemyTurn=duel&&duel.starter==='enemy';if(duel&&duel.timer)clearTimeout(duel.timer);document.getElementById('duelOverlay').classList.remove('show','duelPaused');document.getElementById('duelFx').innerHTML='';duel=null;state.selected=null;state.target=null;if(wasEnemyTurn&&!state.over){state.player.forEach(u=>{u.atkDebuff=0;u.used=false});state.round++;state.energy=Math.min(5,state.energy+2);state.turn='player';msg('انتهت مواجهة الخصم. حان دورك الآن.');}render()}
-window.openDuel=openDuel;window.selectTarget=function(i){if(state.selected===null||state.over||state.turn!=='player')return;state.target=i;openDuel(state.selected,i,'player')};document.getElementById('duelAction').onclick=attack;document.getElementById('duelPause').onclick=togglePause;document.getElementById('duelRetreat').onclick=retreat;
+window.openDuel=openDuel;window.selectTarget=function(i){if(state.selected===null||state.over||state.turn!=='player')return;state.target=i;openDuel(state.selected,i,'player')};document.getElementById('duelAction').onclick=attack;document.getElementById('duelPause').onclick=togglePause;document.getElementById('duelFinish').onclick=autoResolve;document.getElementById('duelRetreat').onclick=retreat;
 })();
