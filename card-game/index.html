@@ -60,6 +60,13 @@ button{cursor:pointer;touch-action:manipulation}
 @media(prefers-reduced-motion:no-preference){.home,.arena,.panelBox{animation:riseIn .35s ease both}@keyframes riseIn{from{opacity:.6;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}}
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+<style>
+.authBox{margin-top:12px;padding:12px;border:1px solid #8eabff30;border-radius:16px;background:#ffffff07}
+.authRow{display:flex;gap:8px;align-items:center;justify-content:space-between}.authUser{font-size:11px;color:var(--muted);line-height:1.5}
+.googleBtn{width:100%;margin-top:8px;padding:11px;border-radius:13px;border:1px solid #ffffff18;background:linear-gradient(135deg,#fff,#dfe8ff);color:#101525;font-weight:900}
+.logoutBtn{padding:9px 12px;border-radius:11px;background:#ffffff09;border:1px solid #ffffff12;color:#fff}
+</style>
 </head>
 <body>
 <div class="app">
@@ -79,7 +86,18 @@ button{cursor:pointer;touch-action:manipulation}
     <button class="menuBtn" id="openQuests"><strong>🎯 الأهداف</strong><span>تحديات قصيرة تكافئك بالخبرة</span></button>
     <button class="menuBtn" id="openEncyclopedia"><strong>📖 موسوعة البطاقات</strong><span>شاهد تفاصيل البطاقات المكتشفة</span></button>
   </div>
-  <div class="small">30 بطاقة فريدة · كل مباراة توزيع عشوائي · تقدمك محفوظ على هذا الجهاز</div>
+  <div class="authBox">
+  <div class="authRow"><b>🔐 حساب اللاعب</b><span id="authStatus" class="authUser">غير مسجل</span></div>
+  <div id="authGuest">
+    <div class="authUser">سجّل بحساب Google لحفظ مستواك ومجموعتك وتقدمك على السحابة.</div>
+    <button class="googleBtn" id="googleLogin">🔵 المتابعة بحساب Google</button>
+  </div>
+  <div id="authLogged" style="display:none">
+    <div id="authUser" class="authUser"></div>
+    <button class="logoutBtn" id="googleLogout">تسجيل الخروج</button>
+  </div>
+</div>
+<div class="small">30 بطاقة فريدة · كل مباراة توزيع عشوائي · تقدمك يُحفظ تلقائيًا عند تسجيل الدخول</div>
 </section>
 <section class="screen" id="battleScreen" style="flex-direction:column;gap:9px">
 <div style="display:flex;gap:7px">
@@ -140,11 +158,82 @@ const cardPool=[
 ];
 
 
+const SUPABASE_URL='https://nhxybkkclzevsgrrgrjo.supabase.co';
+const SUPABASE_KEY='sb_publishable_nM7yOvy6BgF-GeEJVGhU4w_VwJsDLDn';
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let cloudUser=null,cloudLoaded=false,cloudBusy=false;
 const PROFILE_KEY="card_legends_profile_v2";
 const defaultProfile={xp:0,level:1,wins:0,losses:0,matches:0,plays:0,kills:0,unlocked:[],questWins:0,questKills:0};
 function loadProfile(){try{return {...defaultProfile,...JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}")};}catch{return {...defaultProfile};}}
 let profile=loadProfile();
-function saveProfile(){localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}
+function saveProfile(){
+  localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));
+  if(cloudUser&&cloudLoaded) saveCloud();
+}
+async function saveCloud(){
+  if(!cloudUser||!cloudLoaded||cloudBusy)return;
+  cloudBusy=true;
+  const displayName=(cloudUser.user_metadata?.full_name||cloudUser.user_metadata?.name||cloudUser.email||'لاعب').slice(0,80);
+  const payload={user_id:cloudUser.id,display_name:displayName,profile};
+  const {error}=await supabaseClient.from('card_legends_saves').upsert(payload,{onConflict:'user_id'});
+  cloudBusy=false;
+  if(error) console.error('Cloud save:',error.message);
+}
+function renderAuth(){
+  const guest=document.getElementById('authGuest'),logged=document.getElementById('authLogged'),status=document.getElementById('authStatus'),userEl=document.getElementById('authUser');
+  if(!guest||!logged)return;
+  if(cloudUser){
+    guest.style.display='none';logged.style.display='block';
+    status.textContent='متصل ☁️';
+    userEl.textContent='الحساب: '+(cloudUser.email||cloudUser.user_metadata?.name||'Google');
+  }else{
+    guest.style.display='block';logged.style.display='none';
+    status.textContent='غير مسجل';
+  }
+}
+async function finishCloudLogin(user){
+  cloudUser=user;cloudLoaded=false;renderAuth();
+  const {data,error}=await supabaseClient.from('card_legends_saves').select('profile,display_name').eq('user_id',user.id).maybeSingle();
+  if(error){console.error('Cloud load:',error.message);cloudLoaded=true;renderAuth();return;}
+  if(data?.profile && typeof data.profile==='object'){
+    profile={...defaultProfile,...data.profile};
+    saveProfileLocalOnly();
+  }else{
+    cloudLoaded=true;
+    await saveCloud();
+    return;
+  }
+  cloudLoaded=true;renderAuth();updateHome();
+}
+function saveProfileLocalOnly(){localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}
+async function signInWithGoogle(){
+  const redirectTo=window.location.origin+window.location.pathname;
+  const {data,error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
+  if(error){alert('تعذر بدء تسجيل Google: '+error.message);return;}
+  if(data?.url)window.location.href=data.url;
+}
+async function bootAuth(){
+  renderAuth();
+  const params=new URLSearchParams(window.location.search);
+  const hash=new URLSearchParams(window.location.hash.replace(/^#/,''));
+  const err=params.get('error_description')||hash.get('error_description');
+  if(err){alert('فشل تسجيل Google: '+decodeURIComponent(err));history.replaceState({},document.title,window.location.pathname);return;}
+  const code=params.get('code');
+  if(code){
+    const {error}=await supabaseClient.auth.exchangeCodeForSession(code);
+    history.replaceState({},document.title,window.location.pathname);
+    if(error)console.error('OAuth:',error.message);
+  }
+  const {data}=await supabaseClient.auth.getSession();
+  if(data.session?.user)await finishCloudLogin(data.session.user);
+  renderAuth();
+}
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+  if(event==='SIGNED_IN'&&session?.user&&!cloudUser)setTimeout(()=>finishCloudLogin(session.user),0);
+  if(event==='SIGNED_OUT'){cloudUser=null;cloudLoaded=false;renderAuth();updateHome();}
+});
+setInterval(()=>{if(cloudUser&&cloudLoaded)saveCloud()},15000);
+
 function xpNeed(){return 100+(profile.level-1)*50;}
 function addXP(amount){profile.xp+=amount;while(profile.xp>=xpNeed()){profile.xp-=xpNeed();profile.level++;}saveProfile();}
 function discover(ids){profile.unlocked=[...new Set([...profile.unlocked,...ids])];saveProfile();}
@@ -390,6 +479,9 @@ document.getElementById("openQuests").onclick=renderQuests;
 document.getElementById("openCollection").onclick=renderCollection;
 document.getElementById("openEncyclopedia").onclick=renderEncyclopedia;
 document.getElementById("closePanel").onclick=closePanel;
+document.getElementById("googleLogin").onclick=signInWithGoogle;
+document.getElementById("googleLogout").onclick=async()=>{await supabaseClient.auth.signOut();};
+bootAuth();
 updateHome();
 showScreen("homeScreen");
 </script>
