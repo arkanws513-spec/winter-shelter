@@ -258,13 +258,13 @@ function renderPersonalStats(){
   const fs=profile.freeStats||{atk:0,def:0,block:0,dodge:0};
   const pts=Number(profile.towerPoints||0);
   openPanel("👤 الصفات الشخصية",'<div class="personalPanel">'+
-    '<div class="personalHero"><div class="personalAvatar">🧙</div><div><b>شخصية اللاعب</b><span>هذه الصفات منفصلة عن خصائص البطاقات وتُضاف إليها أثناء القتال.</span></div></div>'+\
-    '<div class="freePoints">النقاط الحرة المتاحة<br><b>'+pts+'</b></div>'+\
-    '<div class="personalStat"><div class="psIcon">⚔️</div><div><div class="psName">القوة</div><span class="psDesc">تزيد الهجوم الفعلي للبطاقات</span></div><div class="psValue">'+fs.atk+'</div></div>'+\
-    '<div class="personalStat"><div class="psIcon">🛡️</div><div><div class="psName">الدفاع</div><span class="psDesc">تزيد دفاع البطاقات</span></div><div class="psValue">'+fs.def+'</div></div>'+\
-    '<div class="personalStat"><div class="psIcon">⛨</div><div><div class="psName">الصد</div><span class="psDesc">تزيد قوة الصد</span></div><div class="psValue">'+fs.block+'</div></div>'+\
-    '<div class="personalStat"><div class="psIcon">💨</div><div><div class="psName">المراوغة</div><span class="psDesc">تزيد فرصة تفادي الهجوم</span></div><div class="psValue">'+fs.dodge+'</div></div>'+\
-    '<button class="mainbtn" style="width:100%;margin-top:4px" onclick="openStatsUpgrade()">➕ استخدام النقاط الحرة</button>'+\
+    '<div class="personalHero"><div class="personalAvatar">🧙</div><div><b>شخصية اللاعب</b><span>هذه الصفات منفصلة عن خصائص البطاقات وتُضاف إليها أثناء القتال.</span></div></div>'+
+    '<div class="freePoints">النقاط الحرة المتاحة<br><b>'+pts+'</b></div>'+
+    '<div class="personalStat"><div class="psIcon">⚔️</div><div><div class="psName">القوة</div><span class="psDesc">تزيد الهجوم الفعلي للبطاقات</span></div><div class="psValue">'+fs.atk+'</div></div>'+
+    '<div class="personalStat"><div class="psIcon">🛡️</div><div><div class="psName">الدفاع</div><span class="psDesc">تزيد دفاع البطاقات</span></div><div class="psValue">'+fs.def+'</div></div>'+
+    '<div class="personalStat"><div class="psIcon">⛨</div><div><div class="psName">الصد</div><span class="psDesc">تزيد قوة الصد</span></div><div class="psValue">'+fs.block+'</div></div>'+
+    '<div class="personalStat"><div class="psIcon">💨</div><div><div class="psName">المراوغة</div><span class="psDesc">تزيد فرصة تفادي الهجوم</span></div><div class="psValue">'+fs.dodge+'</div></div>'+
+    '<button class="mainbtn" style="width:100%;margin-top:4px" onclick="openStatsUpgrade()">➕ استخدام النقاط الحرة</button>'+
   '</div>');
 }
 function renderStats(){
