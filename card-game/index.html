@@ -82,6 +82,8 @@ button{cursor:pointer;touch-action:manipulation}
   <div class="menuGrid">
     <button class="primaryWide" id="startGame">⚔️ ابدأ مباراة</button>
     <button class="menuBtn" id="openCollection"><strong>🃏 مجموعتي</strong><span id="collectionCount">0 / 30 بطاقة</span></button>
+<button class="menuBtn modeCard sky" id="openTower"><strong>🏯 برج السماء</strong><span>50 طابقًا · نقطتان حرتان · بطاقات امتياز</span></button>
+<button class="menuBtn modeCard pvp" id="openPvp"><strong>🌐 قتال ضد لاعب</strong><span>ابحث عن لاعب حقيقي وواجهه</span></button>
     <button class="menuBtn" id="openStats"><strong>📊 إحصائياتي</strong><span>الانتصارات والخسائر والخبرة</span></button>
     <button class="menuBtn" id="openQuests"><strong>🎯 الأهداف</strong><span>تحديات قصيرة تكافئك بالخبرة</span></button>
     <button class="menuBtn" id="openEncyclopedia"><strong>📖 موسوعة البطاقات</strong><span>شاهد تفاصيل البطاقات المكتشفة</span></button>
@@ -97,7 +99,7 @@ button{cursor:pointer;touch-action:manipulation}
     <button class="logoutBtn" id="googleLogout">تسجيل الخروج</button>
   </div>
 </div>
-<div class="small">30 بطاقة فريدة · كل مباراة توزيع عشوائي · تقدمك يُحفظ تلقائيًا عند تسجيل الدخول</div>
+<div class="small">3 أنظمة لعب · 30 بطاقة أساسية · 15 بطاقة امتياز للبرج · تقدمك يُحفظ تلقائيًا عند تسجيل الدخول</div>
 </section>
 <section class="screen" id="battleScreen" style="flex-direction:column;gap:9px">
 <div style="display:flex;gap:7px">
@@ -120,6 +122,8 @@ button{cursor:pointer;touch-action:manipulation}
 <div class="small">مجموعة 30 بطاقة فريدة — في كل مباراة تحصل أنت والخصم على 5 بطاقات مختلفة عشوائيًا</div>
 </div>
 
+<section class="screen" id="towerScreen" style="flex-direction:column;gap:9px"><button class="battleBack" onclick="showScreen('homeScreen')">‹ العودة للصفحة الرئيسية</button><div class="top"><div class="logo">🏯 برج <span>السماء</span></div><div class="round">50 طابقًا</div></div><div id="towerContent"></div></section>
+<section class="screen" id="pvpScreen" style="flex-direction:column;gap:9px"><button class="battleBack" onclick="showScreen('homeScreen')">‹ العودة للصفحة الرئيسية</button><div class="top"><div class="logo">🌐 قتال <span>ضد لاعب</span></div></div><div id="pvpContent"></div></section>
 <div class="panel" id="infoPanel"><div class="panelBox"><div class="panelHead"><h2 id="panelTitle"></h2><button class="close" id="closePanel">✕</button></div><div id="panelContent"></div></div></div>
 </section>
 <div class="overlay" id="overlay"><div class="modal"><div class="big" id="resultIcon">🏆</div><h1 id="resultTitle"></h1><p id="resultText"></p><button class="mainbtn" id="playAgain">مباراة جديدة</button></div></div>
@@ -404,6 +408,28 @@ function finishMatch(win){
 }
 function finishBattle(win){
   if(state.over||battleEnding||matchOver)return;
+  if(state.mode==="tower"){
+    battleEnding=true;state.over=true;
+    if(win){
+      const completed=profile.towerFloor;
+      profile.towerPoints+=2;
+      if(completed<50)profile.towerFloor=completed+1;
+      saveProfile();updateHome();render();
+      document.getElementById("resultIcon").textContent="🏯";
+      document.getElementById("resultTitle").textContent="تم اجتياز الطابق "+completed;
+      document.getElementById("resultText").textContent="حصلت على نقطتين حرتين. الطابق التالي: "+(completed<50?completed+1:"اكتملت القمة!");
+      document.getElementById("playAgain").textContent=completed===50?"العودة للبرج":"الطابق التالي";
+      document.getElementById("overlay").classList.add("show");
+      if(completed===50||[5,10,15,20,30,40,50].includes(completed))window._towerRewardPending=true;
+    }else{
+      document.getElementById("resultIcon").textContent="💫";
+      document.getElementById("resultTitle").textContent="انتهت محاولة البرج";
+      document.getElementById("resultText").textContent="ستبقى عند الطابق "+profile.towerFloor+" ويمكنك المحاولة من جديد.";
+      document.getElementById("playAgain").textContent="إعادة المحاولة";
+      document.getElementById("overlay").classList.add("show");
+    }
+    return;
+  }
   battleEnding=true;state.over=true;
   if(win)matchPlayerWins++;else matchEnemyWins++;
   updateMatchHud();render();
@@ -428,6 +454,10 @@ document.getElementById("endTurn").onclick=endTurn;
 document.getElementById("reset").onclick=newState;
 document.getElementById("playAgain").onclick=()=>{
   document.getElementById("overlay").classList.remove("show");
+  if(state&&state.mode==="tower"){
+    if(window._towerRewardPending){window._towerRewardPending=false;renderTower();showScreen("towerScreen");setTimeout(chooseTowerReward,80);return;}
+    renderTower();showScreen("towerScreen");return;
+  }
   showScreen("battleScreen");
   if(matchOver){
     startMatch();
@@ -448,6 +478,8 @@ document.getElementById("openStats").onclick=renderStats;
 document.getElementById("openQuests").onclick=renderQuests;
 document.getElementById("openCollection").onclick=renderCollection;
 document.getElementById("openEncyclopedia").onclick=renderEncyclopedia;
+document.getElementById("openTower").onclick=enterTower;
+document.getElementById("openPvp").onclick=enterPvp;
 document.getElementById("closePanel").onclick=closePanel;
 document.getElementById("googleLogin").onclick=signInWithGoogle;
 document.getElementById("googleLogout").onclick=async()=>{await supabaseClient.auth.signOut();};
@@ -455,5 +487,5 @@ bootAuth();
 updateHome();
 showScreen("homeScreen");
 </script>
-<link rel="stylesheet" href="duel.css"><div class="duelOverlay" id="duelOverlay"><div class="duelArena"><div class="duelFx" id="duelFx"></div><div class="duelFlash" id="duelFlash"></div><div class="duelTop"><div class="duelTitle">مواجهة البطاقات</div><div class="duelRound" id="duelRound">المبارزة</div></div><div class="duelCards"><div class="duelCard playerCard" id="duelPlayer"></div><div class="duelVs">VS</div><div class="duelCard enemyCard" id="duelEnemy"></div></div><div class="duelStatus" id="duelStatus">تستعد البطاقتان للقتال...</div><div class="duelControls"><button class="duelAction" id="duelAction">⚔️ بدء الهجوم</button><button class="duelPause" id="duelPause">⏸️ إيقاف</button><button class="duelFinish" id="duelFinish">🏁 إنهاء المواجهة</button><button class="duelRetreat" id="duelRetreat">🚪 انسحاب</button></div></div></div><script src="duel.js"></script></body>
+<link rel="stylesheet" href="modes.css"><link rel="stylesheet" href="duel.css"><script src="modes.js"></script><div class="duelOverlay" id="duelOverlay"><div class="duelArena"><div class="duelFx" id="duelFx"></div><div class="duelFlash" id="duelFlash"></div><div class="duelTop"><div class="duelTitle">مواجهة البطاقات</div><div class="duelRound" id="duelRound">المبارزة</div></div><div class="duelCards"><div class="duelCard playerCard" id="duelPlayer"></div><div class="duelVs">VS</div><div class="duelCard enemyCard" id="duelEnemy"></div></div><div class="duelStatus" id="duelStatus">تستعد البطاقتان للقتال...</div><div class="duelControls"><button class="duelAction" id="duelAction">⚔️ بدء الهجوم</button><button class="duelPause" id="duelPause">⏸️ إيقاف</button><button class="duelFinish" id="duelFinish">🏁 إنهاء المواجهة</button><button class="duelRetreat" id="duelRetreat">🚪 انسحاب</button></div></div></div><script src="duel.js"></script></body>
 </html>
