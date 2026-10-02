@@ -112,7 +112,7 @@ async function startPvpQueue(){
  const me=cloudUser.id;
  const {data:wait}=await supabaseClient.from('card_legends_pvp').select('*').eq('status','waiting').neq('host_id',me).limit(1).maybeSingle();
  if(wait){
-   const {error}=await supabaseClient.from('card_legends_pvp').update({guest_id:me,status:'matched',updated_at:new Date().toISOString()}).eq('id',wait.id).eq('status','waiting');
+   const {error}=await supabaseClient.from('card_legends_pvp').update({guest_id:me,guest_deck:getBattleDeck().map(x=>x.id),status:'matched',updated_at:new Date().toISOString()}).eq('id',wait.id).eq('status','waiting');
    if(!error){el.textContent='تم العثور على خصم! جهّز تشكيلتك.';launchPvp(wait.id,'guest',wait);}
    return;
  }
@@ -132,5 +132,5 @@ function launchPvp(id,side,row){
  showScreen('battleScreen');render();msg('تمت مطابقتك مع لاعب حقيقي. تبدأ المواجهة الآن.');
 }
 window.enterTower=enterTower;window.enterPvp=enterPvp;window.startTower=startTower;window.spendTowerPoint=spendTowerPoint;window.openStatsUpgrade=openStatsUpgrade;window.openOwnedCards=openOwnedCards;window.claimTowerCard=claimTowerCard;window.nextTowerFloor=nextTowerFloor;
-window.startPvpQueue=startPvpQueue;window.renderPvp=renderPvp;ensure();
+window.startPvpQueue=startPvpQueue;window.renderPvp=renderPvp;window.chooseTowerReward=chooseTowerReward;ensure();
 })();
