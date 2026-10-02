@@ -64,7 +64,7 @@ button{cursor:pointer;touch-action:manipulation}
 <style>
 .authBox{margin-top:12px;padding:12px;border:1px solid #8eabff30;border-radius:16px;background:#ffffff07}
 .authRow{display:flex;gap:8px;align-items:center;justify-content:space-between}.authUser{font-size:11px;color:var(--muted);line-height:1.5}
-.googleBtn{width:100%;margin-top:8px;padding:11px;border-radius:13px;border:1px solid #ffffff18;background:linear-gradient(135deg,#fff,#dfe8ff);color:#101525;font-weight:900}
+.googleBtn{width:100%;margin-top:8px;padding:11px;border-radius:13px;border:1px solid #ffffff18;background:linear-gradient(135deg,#fff,#dfe8ff);color:#101525;font-weight:900;position:relative;z-index:30;pointer-events:auto;cursor:pointer}
 .logoutBtn{padding:9px 12px;border-radius:11px;background:#ffffff09;border:1px solid #ffffff12;color:#fff}
 </style>
 </head>
@@ -92,7 +92,7 @@ button{cursor:pointer;touch-action:manipulation}
   <div class="authRow"><b>🔐 حساب اللاعب</b><span id="authStatus" class="authUser">غير مسجل</span></div>
   <div id="authGuest">
     <div class="authUser">سجّل بحساب Google لحفظ مستواك ومجموعتك وتقدمك على السحابة.</div>
-    <button class="googleBtn" id="googleLogin">🔵 المتابعة بحساب Google</button>
+    <button type="button" class="googleBtn" id="googleLogin" onclick="window.startGoogleLogin&&window.startGoogleLogin()">🔵 المتابعة بحساب Google</button>
   </div>
   <div id="authLogged" style="display:none">
     <div id="authUser" class="authUser"></div>
@@ -213,6 +213,10 @@ async function finishCloudLogin(user){
   cloudLoaded=true;renderAuth();updateHome();
 }
 function saveProfileLocalOnly(){localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}
+window.startGoogleLogin=async function(){
+  if(!window.supabase||!supabaseClient){alert('خدمة تسجيل Google لم تُحمّل بعد. أعد فتح اللعبة ثم جرّب مرة أخرى.');return;}
+  return signInWithGoogle();
+};
 async function signInWithGoogle(){
   const redirectTo='https://arkanws513-spec.github.io/winter-shelter/card-game/';
   const {data,error}=await supabaseClient.auth.signInWithOAuth({
