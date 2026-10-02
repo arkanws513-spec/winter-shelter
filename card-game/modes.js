@@ -132,5 +132,8 @@ function launchPvp(id,side,row){
  showScreen('battleScreen');render();msg('تمت مطابقتك مع لاعب حقيقي. تبدأ المواجهة الآن.');
 }
 window.enterTower=enterTower;window.enterPvp=enterPvp;window.startTower=startTower;window.spendTowerPoint=spendTowerPoint;window.openStatsUpgrade=openStatsUpgrade;window.openOwnedCards=openOwnedCards;window.claimTowerCard=claimTowerCard;window.nextTowerFloor=nextTowerFloor;
-window.startPvpQueue=startPvpQueue;window.renderPvp=renderPvp;window.chooseTowerReward=chooseTowerReward;ensure();
+window.startPvpQueue=startPvpQueue;window.renderPvp=renderPvp;window.chooseTowerReward=chooseTowerReward;window.renderTower=renderTower;
+document.getElementById('openTower').onclick=enterTower;
+document.getElementById('openPvp').onclick=enterPvp;
+ensure();
 })();
