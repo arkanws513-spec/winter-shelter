@@ -455,7 +455,7 @@ document.getElementById("reset").onclick=newState;
 document.getElementById("playAgain").onclick=()=>{
   document.getElementById("overlay").classList.remove("show");
   if(state&&state.mode==="tower"){
-    if(window._towerRewardPending){window._towerRewardPending=false;renderTower();showScreen("towerScreen");setTimeout(chooseTowerReward,80);return;}
+    if(window._towerRewardPending){window._towerRewardPending=false;renderTower();showScreen("towerScreen");setTimeout(window.chooseTowerReward,80);return;}
     renderTower();showScreen("towerScreen");return;
   }
   showScreen("battleScreen");
@@ -478,8 +478,7 @@ document.getElementById("openStats").onclick=renderStats;
 document.getElementById("openQuests").onclick=renderQuests;
 document.getElementById("openCollection").onclick=renderCollection;
 document.getElementById("openEncyclopedia").onclick=renderEncyclopedia;
-document.getElementById("openTower").onclick=enterTower;
-document.getElementById("openPvp").onclick=enterPvp;
+
 document.getElementById("closePanel").onclick=closePanel;
 document.getElementById("googleLogin").onclick=signInWithGoogle;
 document.getElementById("googleLogout").onclick=async()=>{await supabaseClient.auth.signOut();};
