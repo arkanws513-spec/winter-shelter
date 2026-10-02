@@ -46,13 +46,41 @@ function cardById(id){return TOWER_CARDS.find(c=>c.id===id)||cardPool.find(c=>c.
 function towerCard(id){const c=cardById(id);return c?freshCard(c):null}
 function renderTower(){
  ensure();const f=profile.towerFloor,owned=profile.towerOwned;
+ const deck=profile.deckIds&&profile.deckIds.length?profile.deckIds:[];
+ profile.deckIds=deck.length?deck:shuffle(cardPool).slice(0,5).map(x=>x.id);
+ const current=profile.deckIds.map(id=>cardById(id)).filter(Boolean);
+
  document.getElementById('towerContent').innerHTML=
  '<div class="towerHero"><h2>🏯 برج السماء</h2><p>50 طابقًا. كل طابق أقوى من السابق. الفوز يمنحك نقطتين حرتين لتطوير صفاتك الشخصية، والطوابق الخاصة تمنحك فرصة اختيار بطاقة امتياز من 15 بطاقة لا تظهر عشوائيًا في المعارك.</p>'+
  '<div class="towerStats"><div class="towerStat"><span>الطابق الحالي</span><b>'+f+'/50</b></div><div class="towerStat"><span>النقاط الحرة</span><b>'+profile.towerPoints+'</b></div><div class="towerStat"><span>بطاقات الامتياز</span><b>'+owned.length+'</b></div></div></div>'+
  '<div class="towerFloor"><div><b>الطابق '+f+'</b><span> قوة الخصم: '+(100+f*8)+'%</span></div><button class="towerBtn" onclick="startTower()">⚔️ دخول</button></div>'+
+ '<div class="towerFloor"><div><b>🃏 تشكيلتك الحالية</b><span>'+current.map(c=>c.name).join(' · ')+'</span></div><button class="towerBtn" onclick="openDeckBuilder()">تعديل</button></div>'+
  '<div class="towerFloor"><div><b>📈 صفاتك الشخصية</b><span>تضاف تلقائيًا لكل بطاقة تستخدمها</span></div><button class="towerBtn" onclick="openStatsUpgrade()">تطوير</button></div>'+
  '<div class="towerFloor"><div><b>🃏 بطاقات البرج الخاصة</b><span>'+owned.length+' / 15 مكتسبة</span></div><button class="towerBtn" onclick="openOwnedCards()">عرض</button></div>'+
  '<div class="small">الطوابق الخاصة: '+SKY_MILESTONES.join(' · ')+'</div>';
+}
+function openDeckBuilder(){
+ ensure();
+ const pool=[...cardPool,...TOWER_CARDS].filter((c,i,a)=>a.findIndex(x=>x.id===c.id)===i);
+ const current=profile.deckIds||[];
+ openPanel('🃏 تشكيلتك — 5 بطاقات','<div class="quest"><b>يمكنك إدخال بطاقات امتياز البرج بدل بطاقاتك الأساسية.</b><span>الحد الأقصى 5 بطاقات. بطاقات البرج تظهر بعلامة 🏯.</span></div><div class="towerCards">'+pool.map(c=>{
+   const on=current.includes(c.id);
+   const special=TOWER_CARDS.some(x=>x.id===c.id);
+   return '<button class="towerCard pickChoice '+(on?'selected':'')+'" onclick="toggleDeckCard(\''+c.id+'\')"><div class="tcIcon">'+c.icon+'</div><b>'+c.name+'</b><small>'+(special?'🏯 امتياز':'أساسية')+' · ⚔️ '+c.atk+'</small></button>';
+ }).join('')+'</div><button class="towerBtn" style="margin-top:10px" onclick="saveDeckBuilder()">💾 حفظ التشكيلة</button>');
+}
+function toggleDeckCard(id){
+ ensure();
+ const current=profile.deckIds||[];
+ if(current.includes(id)){profile.deckIds=current.filter(x=>x!==id);openDeckBuilder();return}
+ if(!profile.towerOwned.includes(id)&&TOWER_CARDS.some(x=>x.id===id)){msg('هذه بطاقة امتياز لم تحصل عليها بعد.');return}
+ if(current.length>=5){msg('التشكيلة مكتملة — أزل بطاقة أولًا.');return}
+ profile.deckIds=[...current,id];openDeckBuilder();
+}
+function saveDeckBuilder(){
+ ensure();
+ if((profile.deckIds||[]).length!==5){msg('يجب أن تحتوي التشكيلة على 5 بطاقات.');return}
+ saveProfile();renderTower();openPanel('✅ تم حفظ التشكيلة','<div class="quest"><b>تم اعتماد البطاقات الخمس.</b><span>سيتم استخدامها في برج السماء، ويمكنك تعديلها متى شئت.</span></div>');
 }
 function openStatsUpgrade(){
  ensure();openPanel('تطوير صفاتك الشخصية','<div class="quest"><b>النقاط الحرة: '+profile.towerPoints+'</b><span>كل نقطة = +1 في الصفة التي تختارها، وتنتقل تلقائيًا إلى كل بطاقة في المعركة.</span></div><div class="freePointGrid">'+
@@ -83,12 +111,10 @@ function startTower(){
  showScreen('battleScreen');render();msg('برج السماء — الطابق '+floor+'. خصم هذا الطابق أقوى من السابق.');
 }
 function getBattleDeck(){
- const base=shuffle(cardPool).slice(0,5).map(freshCard);
- const owned=profile.towerOwned.map(towerCard);
- if(!owned.length)return base;
- const swaps=Math.min(2,owned.length);
- for(let i=0;i<swaps;i++)base[base.length-1-i]=owned[i];
- return base;
+ ensure();
+ const ids=(profile.deckIds&&profile.deckIds.length===5)?profile.deckIds:shuffle(cardPool).slice(0,5).map(x=>x.id);
+ profile.deckIds=ids;
+ return ids.map(id=>cardById(id)).filter(Boolean).map(freshCard);
 }
 function buildTowerEnemy(f){
  const base=shuffle(cardPool).slice(0,5);
@@ -130,7 +156,7 @@ function launchPvp(id,side,row){
  state={player:getBattleDeck(),enemy:enemy.length?enemy:shuffle(cardPool).slice(0,5).map(freshCard),energy:3,round:1,combo:0,selected:null,target:null,over:false,turn:'player',usedIds:[],mode:'pvp'};
  showScreen('battleScreen');render();msg('تمت مطابقتك مع لاعب حقيقي. تبدأ المواجهة الآن.');
 }
-window.enterTower=enterTower;window.enterPvp=enterPvp;window.startTower=startTower;window.spendTowerPoint=spendTowerPoint;window.openStatsUpgrade=openStatsUpgrade;window.openOwnedCards=openOwnedCards;window.claimTowerCard=claimTowerCard;window.nextTowerFloor=nextTowerFloor;
+window.openDeckBuilder=openDeckBuilder;window.toggleDeckCard=toggleDeckCard;window.saveDeckBuilder=saveDeckBuilder;window.enterTower=enterTower;window.enterPvp=enterPvp;window.startTower=startTower;window.spendTowerPoint=spendTowerPoint;window.openStatsUpgrade=openStatsUpgrade;window.openOwnedCards=openOwnedCards;window.claimTowerCard=claimTowerCard;window.nextTowerFloor=nextTowerFloor;
 window.startPvpQueue=startPvpQueue;window.renderPvp=renderPvp;window.chooseTowerReward=chooseTowerReward;window.renderTower=renderTower;
 document.getElementById('openTower').onclick=enterTower;
 document.getElementById('openPvp').onclick=enterPvp;
