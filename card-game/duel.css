@@ -7,3 +7,5 @@
 .duelRetreat{border-color:#ff647c35;color:#ff9aaa}
 .duelAction{flex:1}
 .duelPaused .duelCards{filter:saturate(.55) brightness(.72)}
+
+.duelFinish{padding:11px 13px;border-radius:12px;background:linear-gradient(135deg,#8f6cff,#5b4bb7);border:1px solid #c8b9ff66;color:#fff;font-weight:900;box-shadow:0 5px 16px #0004}.duelFinish:active{transform:translateY(1px)}.duelFinish:disabled{opacity:.45}.duelRetreat{font-weight:900}.duelPause:disabled{opacity:.45}
