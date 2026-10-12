@@ -1,0 +1,29 @@
+name: Inline script syntax check
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Parse inline scripts in demo page
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const html = readFileSync('index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
+            .map((match) => match[1])
+            .filter((script) => script.trim());
+          if (scripts.length === 0) throw new Error('No inline scripts found in index.html');
+          scripts.forEach((script, index) => {
+            try { new Function(script); }
+            catch (error) { throw new Error(`Inline script ${index + 1} failed to parse: ${error.message}`); }
+          });
+          console.log(`Parsed ${scripts.length} inline script(s).`);
+          NODE
