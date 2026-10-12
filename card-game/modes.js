@@ -131,8 +131,13 @@ function buildTowerEnemy(f){
 function nextTowerFloor(){
  const won=state&&alive(state.player).length>0&&alive(state.enemy).length===0;
  if(!won)return;
- if(profile.towerFloor<50){profile.towerFloor++;profile.towerPoints+=2;saveProfile();if(SKY_MILESTONES.includes(profile.towerFloor-1)){}}
- if(SKY_MILESTONES.includes(profile.towerFloor-1))chooseTowerReward();
+ // Reward the floor that was just completed; stop cleanly at the final floor.
+ const completedFloor=profile.towerFloor;
+ if(completedFloor>=50){renderTower();showScreen('towerScreen');return;}
+ profile.towerFloor=completedFloor+1;
+ profile.towerPoints+=2;
+ saveProfile();
+ if(SKY_MILESTONES.includes(completedFloor))chooseTowerReward();
  else {renderTower();showScreen('towerScreen');}
 }
 function enterTower(){ensure();renderTower();showScreen('towerScreen')}
