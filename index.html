@@ -48,17 +48,27 @@ const data=[
 {id:5,name:'مستلزمات منزلية',cat:'بقالة',price:75,icon:'🧹'},
 {id:6,name:'عناية شخصية',cat:'صيدلية',price:120,icon:'🧴'}
 ];
-let cart=JSON.parse(localStorage.getItem('mashaweer_cart')||'[]');
-let orders=JSON.parse(localStorage.getItem('mashaweer_orders')||'[]');
+function readArray(key){
+  try{const value=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(value)?value:[]}
+  catch{return []}
+}
+function escapeHTML(value){
+  return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+let cart=readArray('mashaweer_cart').map(item=>data.find(p=>p.id===Number(item?.id))).filter(Boolean);
+let orders=readArray('mashaweer_orders').filter(order=>order&&Array.isArray(order.items));
 
-function save(){localStorage.setItem('mashaweer_cart',JSON.stringify(cart));localStorage.setItem('mashaweer_orders',JSON.stringify(orders));}
+function save(){
+  try{localStorage.setItem('mashaweer_cart',JSON.stringify(cart));localStorage.setItem('mashaweer_orders',JSON.stringify(orders))}
+  catch{alert('تعذر حفظ البيانات على هذا الجهاز. تحقق من مساحة التخزين وإعدادات المتصفح.')}
+}
 function renderProducts(list=data){document.getElementById('products').innerHTML=list.map(p=>'<article class="product"><div class="pic">'+p.icon+'</div><h3>'+p.name+'</h3><p>'+p.cat+' · توصيل حسب المنطقة</p><span class="price">'+p.price+' ج.م</span><button class="add" onclick="add('+p.id+')">+ أضف</button></article>').join('')}
 function add(id){const p=data.find(x=>x.id===id);cart.push(p);save();renderCart();alert('تمت إضافة '+p.name+' إلى السلة');}
 function filterCat(c){renderProducts(data.filter(x=>x.cat===c));document.getElementById('products').scrollIntoView({behavior:'smooth'});}
 function go(id,btn){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('show'));document.getElementById(id).classList.add('show');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='cart')renderCart();if(id==='orders')renderOrders();scrollTo(0,0)}
-function renderCart(){const box=document.getElementById('cartBox');if(!cart.length){box.innerHTML='<div class="empty">السلة فارغة 🛒<br>أضف منتجًا من الرئيسية.</div>';return}let total=cart.reduce((s,x)=>s+x.price,0);box.innerHTML=cart.map((x,i)=>'<div class="order"><div class="row"><b>'+x.icon+' '+x.name+'</b><span>'+x.price+' ج.م</span></div></div>').join('')+'<div class="cartTotal">الإجمالي: '+total+' ج.م</div><button class="primary" onclick="checkout()">إرسال الطلب للمندوب</button><button style="width:100%;margin-top:8px;padding:10px;border:0;background:none;color:#d55" onclick="cart=[];save();renderCart()">تفريغ السلة</button>'}
+function renderCart(){const box=document.getElementById('cartBox');if(!cart.length){box.innerHTML='<div class="empty">السلة فارغة 🛒<br>أضف منتجًا من الرئيسية.</div>';return}let total=cart.reduce((s,x)=>s+x.price,0);box.innerHTML=cart.map((x,i)=>'<div class="order"><div class="row"><b>'+escapeHTML(x.icon)+' '+escapeHTML(x.name)+'</b><span>'+Number(x.price)+' ج.م</span></div></div>').join('')+'<div class="cartTotal">الإجمالي: '+total+' ج.م</div><button class="primary" onclick="checkout()">إرسال الطلب للمندوب</button><button style="width:100%;margin-top:8px;padding:10px;border:0;background:none;color:#d55" onclick="cart=[];save();renderCart()">تفريغ السلة</button>'}
 function checkout(){const total=cart.reduce((s,x)=>s+x.price,0);orders.unshift({id:Date.now(),items:cart.map(x=>x.name),total,status:'تم إنشاء الطلب'});cart=[];save();alert('تم إنشاء الطلب بنجاح 🎉');}
-function renderOrders(){const box=document.getElementById('ordersBox');if(!orders.length){box.innerHTML='<div class="empty">لا توجد طلبات حتى الآن 📦</div>';return}box.innerHTML=orders.map(o=>'<div class="order"><div class="row"><b>طلب #'+String(o.id).slice(-5)+'</b><span class="status">'+o.status+'</span></div><p style="font-size:10px;color:#73809a">'+o.items.join('، ')+'<br><b>'+o.total+' ج.م</b></p></div>').join('')}
+function renderOrders(){const box=document.getElementById('ordersBox');if(!orders.length){box.innerHTML='<div class="empty">لا توجد طلبات حتى الآن 📦</div>';return}box.innerHTML=orders.map(o=>'<div class="order"><div class="row"><b>طلب #'+escapeHTML(String(o.id??'').slice(-5))+'</b><span class="status">'+escapeHTML(o.status||'غير محدد')+'</span></div><p style="font-size:10px;color:#73809a">'+o.items.map(escapeHTML).join('، ')+'<br><b>'+Math.max(0,Number(o.total)||0)+' ج.م</b></p></div>').join('')}
 function openRequest(){const text=prompt('اكتب طلبك بالتفصيل:');if(text&&text.trim()){orders.unshift({id:Date.now(),items:['طلب خاص: '+text.trim()],total:0,status:'قيد المراجعة'});save();alert('وصل طلبك لمشاوير، وسيتم مراجعته.');}}
 renderProducts();renderCart();
 </script>
